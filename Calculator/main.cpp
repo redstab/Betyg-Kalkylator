@@ -14,13 +14,9 @@ int main()
 
 	program a({ matte, engelska }, 0);
 
-	a += matte;
-	a += matte;
-	a += matte;
-
-	a -= matte;
-
 	std::cout << a.beräkna_snitt() << std::endl;
+
+
 
 	std::cin.get();
 }

@@ -2,6 +2,7 @@
 #include "kurs.h"
 
 class program {
+
 public:
 	program(std::vector<kurs>, double);
 
