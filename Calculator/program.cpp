@@ -1,0 +1,62 @@
+#include "program.h"
+
+program::program(std::vector<kurs> krsr, double mrit)
+{
+	kurser = krsr;
+	merit_poäng = mrit;
+}
+
+double program::beräkna_snitt()
+{
+
+	double poäng_summa = 0;
+
+	double betyg_summa = 0;
+
+	for (auto i : kurser) {
+
+		std::cout << i << std::endl;
+
+		poäng_summa += i.poäng();
+
+		betyg_summa += i.summa();
+
+	}
+
+	snitt_betyg = betyg_summa / poäng_summa;
+
+	return snitt_betyg + merit_poäng;
+}
+
+double program::merit()
+{
+	return merit_poäng;
+}
+
+void program::merit(double m)
+{
+	merit_poäng = m;
+}
+
+program& program::operator+=(kurs krs) {
+	kurser.push_back(krs);
+	return *this;
+}
+
+program& program::operator+(kurs krs) {
+	operator+=(krs);
+	return *this;
+}
+
+program& program::operator-=(kurs krs) {
+	auto search = std::find(kurser.begin(), kurser.end(), krs);
+	if (search != kurser.end()) {
+		kurser.erase(search);
+	}
+	return *this;
+}
+
+program& program::operator-(kurs krs) {
+	operator-=(krs);
+	return *this;
+}
