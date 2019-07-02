@@ -12,6 +12,8 @@ public:
 
 	void merit(double);
 
+	double program_poäng();
+
 	program& operator+=(kurs);
 
 	program& operator+(kurs);

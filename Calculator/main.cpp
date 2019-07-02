@@ -2,6 +2,7 @@
 //
 
 #include "program.h"
+#include <curses.h>
 
 int main()
 {
@@ -14,7 +15,7 @@ int main()
 
 	program a({ matte, engelska }, 0);
 
-	std::cout << a.beräkna_snitt() << std::endl;
+	std::cout << a.beräkna_snitt() << std::endl << a.program_poäng() << std::endl;
 
 
 

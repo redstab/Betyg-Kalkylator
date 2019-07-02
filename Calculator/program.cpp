@@ -38,6 +38,15 @@ void program::merit(double m)
 	merit_poäng = m;
 }
 
+double program::program_poäng()
+{
+	double summa = 0;
+	for (auto krs : kurser) {
+		summa += krs.poäng();
+	}
+	return summa;
+}
+
 program& program::operator+=(kurs krs) {
 	kurser.push_back(krs);
 	return *this;
