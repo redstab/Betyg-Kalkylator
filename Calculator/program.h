@@ -14,6 +14,8 @@ public:
 
 	double program_poäng();
 
+	std::vector<kurs> kurserna();
+
 	program& operator+=(kurs);
 
 	program& operator+(kurs);

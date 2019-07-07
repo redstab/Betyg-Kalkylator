@@ -47,6 +47,11 @@ double program::program_poäng()
 	return summa;
 }
 
+std::vector<kurs> program::kurserna()
+{
+	return kurser;
+}
+
 program& program::operator+=(kurs krs) {
 	kurser.push_back(krs);
 	return *this;
