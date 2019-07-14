@@ -21,14 +21,16 @@ enum poäng {
 
 struct kurs {
 
-	kurs(std::string namn = "", char b = 'F', poäng p = hel_kurs) {
+	kurs(std::string namn = "", std::string identifikation = "", std::string typ = "", char b = 'F', poäng p = hel_kurs) {
 		betyg_bokstav = b;
 		betyg_värde = grade.at(betyg_bokstav);
 		kurs_längd = p;
 		kurs_namn = namn;
+		kurs_id = identifikation;
+		kurs_typ = typ;
 	}
 
-	double poäng() {
+	int poäng() {
 		return kurs_längd;
 	}
 
@@ -59,7 +61,9 @@ struct kurs {
 	std::string kurs_namn;
 	char betyg_bokstav;
 	double betyg_värde;
-	double kurs_längd;
+	int kurs_längd;
+	std::string kurs_id;
+	std::string kurs_typ;
 
 
 };
