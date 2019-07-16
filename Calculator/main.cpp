@@ -9,6 +9,7 @@
 #include <functional>
 #include <eh.h>
 #include <Windows.h>
+#include <locale>
 #include "program.h"
 #include <curses.h>
 
@@ -319,6 +320,76 @@
 //	return menu("Calcualtor", v);
 //}
 
+struct coordinate {
+	int x;
+	int y;
+};
+
+class curse {
+public:
+	curse(){
+		initscr();
+		noecho();
+		cbreak();
+		curs_set(0);
+	}
+	~curse() {
+		endwin();
+	}
+
+	void refresh(WINDOW* w) {
+		::refresh();
+		wrefresh(w);
+
+	}	
+
+	void refresh() {
+		::refresh();
+	}
+	
+	void vline(coordinate ths, coordinate tht) {
+		mvvline(ths.y, ths.x, 0, ths.y - tht.y);
+	}
+
+	void hline(coordinate ths, coordinate tht) {
+		mvhline(ths.y, ths.x, 0, ths.x - tht.x);
+	}
+
+	void print(coordinate pnt, std::string msg) {
+		mvprintw(pnt.y, pnt.x, msg.c_str());
+	}
+
+	void wprint(WINDOW* w, coordinate pnt, std::string msg) {
+		mvwprintw(w, pnt.y, pnt.x, msg.c_str());
+	}
+
+	WINDOW * window(int sx, int sy, int bx, int by) {
+		return newwin(sy, sx, by, bx);
+	}
+
+	WINDOW* swindow(WINDOW* parent, int sx, int sy, int bx, int by) {
+		return subwin(parent, sy, sx, by, bx);
+	}
+
+	WINDOW* dwindow(WINDOW* parent, int sx, int sy, int bx, int by) {
+		return derwin(parent, sy, sx, by, bx);
+	}
+
+};
+
+class betyg_meny {
+	betyg_meny(std::string titel, program meny_program, int margin) : title(titel), begin{ margin * 2, margin }, end{ COLS - (margin * 2),LINES - margin }, upcorner{ end.x, begin.y }, downcorner{begin.x, end.y} {}
+
+private:
+
+	// Constants
+	const std::string title;
+	const coordinate begin;
+	const coordinate end;
+	const coordinate upcorner;
+	const coordinate downcorner;
+};
+
 int main()
 {
 
@@ -331,7 +402,9 @@ int main()
 	std::vector<kurs> test = { matte, engelska };
 
 	program a({ matte, engelska }, 0);
-
+	
+	std::locale::global(std::locale("sv"));
+	
 	initscr();
 
 	noecho();
@@ -342,12 +415,13 @@ int main()
 
 	std::string title = "Betyg Kalkylator";
 
-	std::string merit = "Merit = 2.5";
+	std::string merit = "Merit =    ";
 
-	std::string snitt = "Snitt = 12.25";
+	std::string snitt = "Snitt =      ";
 
-	std::string summa = "Summa = 10000";
+	std::string summa = "Summa =      ";
 
+	
 
 	int margin = 2;
 
@@ -361,7 +435,7 @@ int main()
 
 	box(test1, 0, 0);
 
-	mvwhline(test1, test1->_begy + 1, test1->_begx, 0, test1->_maxx - margin * 2);
+	mvwhline(test1, test1->_begy + 2, test1->_begx, 0, test1->_maxx - margin * 2);
 
 	mvwhline(test1, test1->_maxy - 3, test1->_begx, 0, test1->_maxx - margin * 2);
 
@@ -377,21 +451,27 @@ int main()
 	
 	mvwprintw(test1, test1->_maxy - 2, (((test1->_maxx * 5) / 3) - summa.length()) / 2, summa.c_str());
 
+	mvwprintw(test1, test1->_begy + 1, test1->_begx,      "Kurs");
+	mvwprintw(test1, test1->_begy + 1, test1->_begx + 13, "Kurstyp");
+	mvwprintw(test1, test1->_begy + 1, test1->_begx + 24, "Kursnamn");
+	mvwprintw(test1, test1->_begy + 1, test1->_maxx - 15, "Poäng");
+	mvwprintw(test1, test1->_begy + 1, test1->_maxx - 7,  "Betyg");
+
 	for (auto i = 0; i < a.kurserna().size(); i++) {
 
 		kurs temp = a.kurserna().at(i);
 
-		std::string pob = std::to_string(temp.kurs_längd) + "  -  " + temp.betyg_bokstav;
+		std::string pob = std::to_string(temp.kurs_längd) + "     " + temp.betyg_bokstav + "   ";
 
-		std::string print_kurs = temp.kurs_id + std::string(12-temp.kurs_id.length(), ' ') + temp.kurs_typ + "    " + temp.kurs_namn + std::string(test1->_maxx - (temp.kurs_id + std::string(12 - temp.kurs_id.length(), ' ') + temp.kurs_typ + "     " + temp.kurs_namn + pob).length() - margin*2, ' ') + pob;
+		std::string print_kurs = temp.kurs_id + std::string(13-temp.kurs_id.length(), ' ') + temp.kurs_typ + "      " + temp.kurs_namn + std::string(test1->_maxx - (temp.kurs_id + std::string(13 - temp.kurs_id.length(), ' ') + temp.kurs_typ + "       " + temp.kurs_namn + pob).length() - (margin+margin), ' ') + pob;
 
-		mvwprintw(test1, test1->_begy + 2 + i, margin, print_kurs.c_str());
+		mvwprintw(test1, test1->_begy + 3 + i, margin, print_kurs.c_str());
+
 	}
 
 	refresh();
 
 	wrefresh(test1);
-
 
 	getch();
 
