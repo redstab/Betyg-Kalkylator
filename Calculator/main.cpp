@@ -3,331 +3,22 @@
 #include <iostream>
 #include <vector>
 #include <string>
-#include <any>
-#include <typeinfo>
-#include <initializer_list>
-#include <functional>
-#include <eh.h>
 #include <Windows.h>
-#include <locale>
 #include "program.h"
 #include <curses.h>
-
-//template<typename T>
-//class item {
-//public:
-//	item(std::string new_title, std::function<void(T)> func, T arg) : title(new_title), function(func), argument(arg) {}
-//	std::string get_title() {
-//		return title;
-//	}
-//	void set_argument(T arg) {
-//		argument(arg);
-//	}
-//
-//	T get_argument() {
-//		return argument;
-//	}
-//
-//	void set_title(std::string new_title) {
-//		title = new_title;
-//	}
-//
-//	void execute(T arg) {
-//		function(arg);
-//	}
-//	void operation(std::function<void(T)> func) {
-//		function = func;
-//	}
-//private:
-//	std::string title;
-//	std::function<void(T)> function;
-//	T argument;
-//};
-//template<>
-//class item<void> {
-//public:
-//	item(std::string new_title, std::function<void()> func) : title(new_title), function(func) {}
-//	std::string get_title() {
-//		return title;
-//	}
-//	void set_title(std::string new_title) {
-//		title = new_title;
-//	}
-//	void execute() {
-//		function();
-//	}
-//	void operation(std::function<void()> func) {
-//		function = func;
-//	}
-//private:
-//	std::string title;
-//	std::function<void()> function;
-//};
-//
-//struct menu {
-//	menu(std::string title, std::vector<std::any> items) {
-//		menu_title = title;
-//
-//		if (items.size() == 0) {
-//			menu_items.push_back(item<void>("", [] {})); // If menu has no items, this will backfire before you know it
-//		}
-//		else {
-//			menu_items = items;
-//		}
-//	};
-//	std::vector<std::any> menu_items;
-//	std::string menu_title;
-//
-//};
-//
-//template<typename T> class homogen_handler {
-//public:
-//	homogen_handler(menu m) : handled_menu(m), display_menu(m) {
-//		menu_trail.push_back(display_menu);
-//		alive = true;
-//		initscr();
-//		noecho();
-//		curs_set(0);
-//		keypad(stdscr, TRUE);
-//	}
-//
-//	void operator()() {
-//		std::any selected_item = display_menu.menu_items[current_selection];
-//
-//		if (selected_item.type() == t_value) {
-//			auto itm = std::any_cast<item<T>>(selected_item);
-//			itm.execute(itm.get_argument());
-//		}
-//		else if (selected_item.type() == t_function) {
-//			std::any_cast<item<void>>(selected_item).execute();
-//		}
-//		else if (selected_item.type() == t_menu) {
-//
-//			descend();
-//		}
-//
-//	}
-//
-//	void operator[](int selection) {
-//		set_selection(-1);
-//		current_selection = selection;
-//		set_selection(current_selection);
-//	}
-//
-//	homogen_handler& operator++(int) {
-//		if (current_selection == display_menu.menu_items.size() - 1) {
-//			set_selection(-1);
-//			current_selection = 0;
-//			set_selection(current_selection);
-//		}
-//		else {
-//			set_selection(-1);
-//			current_selection++;
-//			set_selection(current_selection);
-//		}
-//		return *this;
-//	}
-//
-//	homogen_handler& operator--(int) {
-//		if (current_selection == 0) {
-//			set_selection(-1);
-//			current_selection = display_menu.menu_items.size() - 1;
-//			set_selection(current_selection);
-//		}
-//		else {
-//			set_selection(-1);
-//			current_selection--;
-//			set_selection(current_selection);
-//		}
-//		return *this;
-//	}
-//
-//	homogen_handler& operator+=(std::any _item) {
-//
-//		if (_item.type() == t_value || _item.type() == t_function || _item.type() == t_menu) {
-//			menu_trail.back().menu_items.push_back(_item);
-//			display_menu = menu_trail.back();
-//		}
-//		return *this;
-//	}
-//
-//	homogen_handler& operator+(std::any _item) {
-//		operator+=(_item);
-//		return *this;
-//	}
-//
-//
-//	/*
-//
-//	Needs +=/+ operator to add a item at runtime at bottom
-//	Needs -=/- operator to remove a specifc item at runtime anywhere in the menu recursively
-//	Needs implementation with rat !!!!
-//
-//
-//	*/
-//
-//
-//	bool isalive() {
-//		return alive;
-//	}
-//
-//	int get_key() {
-//		return getch();
-//	}
-//
-//	void show() {
-//		men = center_box(2, getmaxy(stdscr), getmaxx(stdscr));
-//
-//		center_title(men, display_menu.menu_title);
-//
-//		print_menu(men, display_menu, -1);
-//
-//		set_selection(0);
-//	}
-//
-//	~homogen_handler() {
-//		endwin();
-//	}
-//
-//	menu* get_menu() {
-//		return &display_menu;
-//	}
-//
-//	void set_selection(int selection) {
-//		if (selection < 0) {
-//			print_item(men, current_selection, false);
-//			return;
-//		}
-//		current_selection = selection;
-//		print_item(men, selection, true);
-//		refresh();
-//		wrefresh(men);
-//	}
-//
-//	void descend() {
-//		next_menu(display_menu, current_selection);
-//	}
-//
-//	void ascend() {
-//		next_menu(display_menu, -1);
-//	}
-//
-//	std::string get_tail() {
-//		std::string sep, output;
-//		for (auto i_menu : menu_trail) {
-//			output += sep + i_menu.menu_title;
-//			sep = " -> ";
-//		}
-//		return output;
-//	}
-//
-//private:
-//	menu handled_menu;
-//	menu display_menu;
-//	std::vector<menu> menu_trail;
-//
-//	WINDOW* men;
-//
-//	bool alive;
-//
-//	int current_selection = 0;
-//
-//	const std::type_info& t_value = typeid(item<T>);
-//	const std::type_info& t_function = typeid(item<void>);
-//	const std::type_info& t_menu = typeid(menu);
-//
-//	WINDOW* new_box(int height, int width, int start_y, int start_x) {
-//		WINDOW* local;
-//		local = newwin(height, width, start_y, start_x);
-//		box(local, 0, 0);
-//		return local;
-//	}
-//
-//	WINDOW* center_box(int margin, int y_max, int x_max) {
-//		return new_box(y_max - margin * 2, x_max - (margin * 4), margin, margin * 2);
-//	}
-//
-//	void center_title(WINDOW* win, std::string title) {
-//		title = " " + title + " ";
-//		mvwprintw(win, 0, ceil((getmaxx(win) - title.size()) / 2.0), title.c_str());
-//	}
-//
-//	void print_item(WINDOW* win, int index, bool selected) {
-//		std::any current_item = display_menu.menu_items[index];
-//
-//		std::string title;
-//
-//		if (current_item.type() == t_value) {
-//			title = std::any_cast<item<T>>(current_item).get_title();
-//		}
-//		else if (current_item.type() == t_function) {
-//			title = std::any_cast<item<void>>(current_item).get_title();
-//		}
-//		else if (current_item.type() == t_menu) {
-//			title = std::any_cast<menu>(current_item).menu_title;
-//		}
-//		if (selected) {
-//
-//			wattron(win, A_STANDOUT);
-//			mvwprintw(win, 1 + index, 2, title.c_str());
-//			wattroff(win, A_STANDOUT);
-//			current_selection = index;
-//		}
-//		else {
-//			mvwprintw(win, 1 + index, 2, title.c_str());
-//		}
-//
-//	}
-//
-//	void print_menu(WINDOW* win, menu men, int selected) {
-//		for (auto i = 0; (i < men.menu_items.size()); i++) {
-//			if (i == selected) {
-//				print_item(win, i, true);
-//			}
-//			else {
-//				print_item(win, i, false);
-//			}
-//		}
-//	}
-//
-//	void redraw_menu(WINDOW* _menu) {
-//		wclear(_menu);
-//		wrefresh(_menu);
-//		show();
-//	}
-//
-//	void next_menu(menu _menu, int selection) {
-//		if (selection == -1) {
-//			if (menu_trail.size() >= 2) {
-//				display_menu = (menu_trail.end()[-2]);
-//				menu_trail.erase(menu_trail.end() - 1);
-//				redraw_menu(men);
-//			}
-//		}
-//		else if (selection < _menu.menu_items.size() && _menu.menu_items[selection].type() == t_menu) {
-//			display_menu = std::any_cast<menu>(_menu.menu_items[selection]);
-//			menu_trail.push_back(display_menu);
-//			redraw_menu(men);
-//		}
-//	}
-//};
-//
-//menu program_to_menu(program prg) {
-//	std::vector<std::any> v;
-//	for (auto krs : prg.kurserna()) {
-//		v.push_back(item<kurs>(krs.namn(), [&](kurs a) {mvprintw(0,0, "1"); }, krs));
-//	}
-//	return menu("Calcualtor", v);
-//}
 
 struct coordinate {
 	int x;
 	int y;
+
+	coordinate operator-(coordinate const& that) const {
+		return { abs(x - that.x) + 1, abs(y - that.y) + 1 };
+	}
 };
 
 class curse {
 public:
-	curse(){
+	curse() {
 		initscr();
 		noecho();
 		cbreak();
@@ -337,34 +28,47 @@ public:
 		endwin();
 	}
 
-	void refresh(WINDOW* w) {
+	const void refresh(WINDOW* w) {
 		::refresh();
 		wrefresh(w);
 
-	}	
+	}
 
-	void refresh() {
+	const void refresh() {
 		::refresh();
 	}
-	
-	void vline(coordinate ths, coordinate tht) {
-		mvvline(ths.y, ths.x, 0, ths.y - tht.y);
+
+	const void line(WINDOW* w, coordinate ths, coordinate tht) {
+		if (ths.x == tht.x) {
+			vline(w, ths, tht);
+		}
+		else if (ths.y == tht.y) {
+			hline(w, ths, tht);
+		}
 	}
 
-	void hline(coordinate ths, coordinate tht) {
-		mvhline(ths.y, ths.x, 0, ths.x - tht.x);
+	const void vline(WINDOW* w, coordinate ths, coordinate tht) {
+		mvwvline(w, ths.y, ths.x, 0, abs(ths.y - tht.y));
 	}
 
-	void print(coordinate pnt, std::string msg) {
+	const void hline(WINDOW* w, coordinate ths, coordinate tht) {
+		mvwhline(w, ths.y, ths.x, 0, abs(ths.x - tht.x));
+	}
+
+	const void print(coordinate pnt, std::string msg) {
 		mvprintw(pnt.y, pnt.x, msg.c_str());
 	}
 
-	void wprint(WINDOW* w, coordinate pnt, std::string msg) {
+	const void wprint(WINDOW* w, coordinate pnt, std::string msg) {
 		mvwprintw(w, pnt.y, pnt.x, msg.c_str());
 	}
 
-	WINDOW * window(int sx, int sy, int bx, int by) {
+	WINDOW* window(int sx, int sy, int bx, int by) {
 		return newwin(sy, sx, by, bx);
+	}
+
+	WINDOW* window(coordinate size, coordinate pnt) {
+		return newwin(size.y, size.x, pnt.y, pnt.x);
 	}
 
 	WINDOW* swindow(WINDOW* parent, int sx, int sy, int bx, int by) {
@@ -375,19 +79,149 @@ public:
 		return derwin(parent, sy, sx, by, bx);
 	}
 
+	void dot(WINDOW* w, coordinate pnt) {
+		wprint(w, pnt, "#");
+	}
+
 };
 
 class betyg_meny {
-	betyg_meny(std::string titel, program meny_program, int margin) : title(titel), begin{ margin * 2, margin }, end{ COLS - (margin * 2),LINES - margin }, upcorner{ end.x, begin.y }, downcorner{begin.x, end.y} {}
+public:
+	betyg_meny(std::string titel, program meny_program, int xmrg, int ymrg) :
+		manager(),
+		aktiv(meny_program),
+		kurserna(aktiv.kurserna()),
+		title(titel),
+		xmargin((xmrg <= 30) ? xmrg : 30),
+		ymargin((ymrg <= 5) ? ymrg : 5),
+		xmax(getmaxx(stdscr)),
+		ymax(getmaxy(stdscr)),
+		box_begin{ xmargin, ymargin },
+		box_end{ (xmax - smargin) - xmargin,(ymax - smargin) - ymargin },
+		write_begin{ dmargin, smargin },
+		write_end{ (box_begin - box_end).x - smargin, (box_begin - box_end).y - smargin },
+		title_begin{ center_text((box_begin - box_end).x, title), smargin },
+		first_divisor{ (box_begin - box_end).x / 3, write_end.y - smargin },
+		last_divisor{ ((box_begin - box_end).x * 2) / 3, write_end.y - smargin },
+		main_menu{ manager.window(box_begin - box_end, box_begin) }
+	{}
+
+	void show_ui() {
+		show_border();
+		show_lines();
+		show_text();
+		manager.refresh(main_menu);
+	}
+
+	void show_kurser() {
+		for (auto i = 0; i < kurserna.size(); i++) {
+			print_kurs(4 + i, kurserna.at(i));
+		}
+		manager.refresh(main_menu);
+	}
 
 private:
 
-	// Constants
+	// NCURSES Manager
+
+	curse manager;
+
+	// Strings
+
 	const std::string title;
-	const coordinate begin;
-	const coordinate end;
-	const coordinate upcorner;
-	const coordinate downcorner;
+	const std::string snitt = "Snitt =     |";
+	const std::string merit = "Merit =   |";
+	const std::string summa = "Summa =     |";
+
+	// Headers
+
+	const std::string kurs_id = "Kurs";
+	const std::string kurs_typ = "Kurstyp";
+	const std::string kurs_namn = "Kursnamn";
+	const std::string kurs_poäng = "Poäng";
+	const std::string kurs_betyg = "Betyg";
+
+	// Sizes
+
+	const int xmargin;
+	const int ymargin;
+
+	const int skurs = 10;
+	const int skurstyp = 7;
+	const int skursnamn = 25;
+	const int spoäng = 5;
+	const int sbetyg = 5;
+
+	const int dmargin = 2;
+	const int smargin = dmargin / dmargin;
+	const int xmax;
+	const int ymax;
+
+	// Coordinates
+
+	const coordinate box_begin;
+	const coordinate box_end;
+	const coordinate write_begin;
+	const coordinate write_end;
+
+	const coordinate title_begin;
+
+	const coordinate first_divisor;
+	const coordinate last_divisor;
+
+	const coordinate ckurs = { write_begin.x, dmargin };
+	const coordinate ckurstyp = { ckurs.x + skurs + dmargin, dmargin };
+	const coordinate ckursnamn = { ckurstyp.x + skurstyp + dmargin, dmargin };
+	const coordinate cbetyg = {write_end.x - smargin - sbetyg , dmargin};
+	const coordinate cpoäng = {cbetyg.x - dmargin - spoäng, dmargin};
+
+	// Container
+
+	WINDOW* main_menu;
+
+	program aktiv;
+
+	std::vector<kurs> kurserna;
+
+	// Functions
+
+	void show_border() {
+		box(main_menu, 0, 0);
+	}
+
+	void show_text() {
+		manager.wprint(main_menu, title_begin, title); // Title
+		manager.wprint(main_menu, { center_text((write_begin - first_divisor).x, merit), write_end.y - smargin }, merit); // Merit
+		manager.wprint(main_menu, { center_text((write_begin - write_end).x, snitt), write_end.y - smargin }, snitt); // Snitt
+		manager.wprint(main_menu, { center_text((last_divisor - write_end).x, summa) + (write_begin - last_divisor).x, write_end.y - smargin }, summa); // Summa
+
+		manager.wprint(main_menu, ckurs, kurs_id);
+		manager.wprint(main_menu, ckurstyp, kurs_typ);
+		manager.wprint(main_menu, ckursnamn, kurs_namn);
+
+		manager.wprint(main_menu, cbetyg, kurs_betyg);
+		manager.wprint(main_menu, cpoäng, kurs_poäng);
+	}
+
+	void show_lines() {
+		manager.line(main_menu, { write_begin.x, write_begin.y + dmargin }, { write_end.x - smargin, write_begin.y + dmargin });	// Horizontal header divider
+		manager.line(main_menu, { write_begin.x, write_end.y - dmargin }, { write_end.x - smargin, write_end.y - dmargin });		// Horizontal results divider
+		manager.line(main_menu, first_divisor, { first_divisor.x, first_divisor.y + smargin });										// Vertical merit divider
+		manager.line(main_menu, last_divisor, { last_divisor.x, last_divisor.y + smargin });										// Vertical snitt/summa divider
+	}
+
+	void print_kurs(int y, kurs krs) {
+		manager.wprint(main_menu, {ckurs.x , y }, krs.kurs_id);
+		manager.wprint(main_menu, {ckurstyp.x , y }, krs.kurs_typ);
+		manager.wprint(main_menu, {ckursnamn.x , y }, krs.kurs_namn);
+		manager.wprint(main_menu, {cpoäng.x , y }, std::to_string(krs.kurs_längd));
+		manager.wprint(main_menu, {cbetyg.x , y }, std::string(1,krs.betyg_bokstav));
+	}
+
+	int center_text(int size, std::string text) {
+		return (size - text.length()) / 2;
+	}
+
 };
 
 int main()
@@ -402,79 +236,12 @@ int main()
 	std::vector<kurs> test = { matte, engelska };
 
 	program a({ matte, engelska }, 0);
-	
-	std::locale::global(std::locale("sv"));
-	
-	initscr();
 
-	noecho();
+	betyg_meny m("Betyg Kalkylator", a, 4, 1);
 
-	cbreak();
+	m.show_ui();
 
-	curs_set(0);
-
-	std::string title = "Betyg Kalkylator";
-
-	std::string merit = "Merit =    ";
-
-	std::string snitt = "Snitt =      ";
-
-	std::string summa = "Summa =      ";
-
-	
-
-	int margin = 2;
-
-	int max_x;
-
-	int max_y;
-
-	getmaxyx(stdscr, max_y, max_x);
-
-	WINDOW* test1 = newwin(max_y - margin, max_x - margin * 2, margin / 2, margin);
-
-	box(test1, 0, 0);
-
-	mvwhline(test1, test1->_begy + 2, test1->_begx, 0, test1->_maxx - margin * 2);
-
-	mvwhline(test1, test1->_maxy - 3, test1->_begx, 0, test1->_maxx - margin * 2);
-
-	mvwprintw(test1, 1, (test1->_maxx - title.length()) / 2, title.c_str());
-
-	mvwvline(test1, test1->_maxy - 2, test1->_maxx / 3, 0, 1);
-
-	mvwvline(test1, test1->_maxy - 2, (test1->_maxx / 3) * 2, 0, 1);
-
-	mvwprintw(test1, test1->_maxy - 2, ((test1->_maxx / 3) - merit.length()) / 2, merit.c_str());
-
-	mvwprintw(test1, test1->_maxy - 2, ((test1->_maxx) - snitt.length()) / 2, snitt.c_str());
-	
-	mvwprintw(test1, test1->_maxy - 2, (((test1->_maxx * 5) / 3) - summa.length()) / 2, summa.c_str());
-
-	mvwprintw(test1, test1->_begy + 1, test1->_begx,      "Kurs");
-	mvwprintw(test1, test1->_begy + 1, test1->_begx + 13, "Kurstyp");
-	mvwprintw(test1, test1->_begy + 1, test1->_begx + 24, "Kursnamn");
-	mvwprintw(test1, test1->_begy + 1, test1->_maxx - 15, "Poäng");
-	mvwprintw(test1, test1->_begy + 1, test1->_maxx - 7,  "Betyg");
-
-	for (auto i = 0; i < a.kurserna().size(); i++) {
-
-		kurs temp = a.kurserna().at(i);
-
-		std::string pob = std::to_string(temp.kurs_längd) + "     " + temp.betyg_bokstav + "   ";
-
-		std::string print_kurs = temp.kurs_id + std::string(13-temp.kurs_id.length(), ' ') + temp.kurs_typ + "      " + temp.kurs_namn + std::string(test1->_maxx - (temp.kurs_id + std::string(13 - temp.kurs_id.length(), ' ') + temp.kurs_typ + "       " + temp.kurs_namn + pob).length() - (margin+margin), ' ') + pob;
-
-		mvwprintw(test1, test1->_begy + 3 + i, margin, print_kurs.c_str());
-
-	}
-
-	refresh();
-
-	wrefresh(test1);
+	m.show_kurser();
 
 	getch();
-
-	endwin();
-
 }
