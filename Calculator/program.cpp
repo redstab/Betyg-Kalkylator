@@ -15,16 +15,19 @@ double program::beräkna_snitt()
 
 	for (auto i : kurser) {
 
-		std::cout << i << std::endl;
-
-		poäng_summa += i.poäng();
+		poäng_summa += i.kurs_längd;
 
 		betyg_summa += i.summa();
 
 	}
 
-	snitt_betyg = betyg_summa / poäng_summa;
-
+	if (betyg_summa != 0 && poäng_summa != 0) {
+		snitt_betyg = betyg_summa / poäng_summa;
+	}
+	else {
+		snitt_betyg = 0.f;
+	}
+	
 	return snitt_betyg + merit_poäng;
 }
 
@@ -42,14 +45,14 @@ double program::program_poäng()
 {
 	double summa = 0;
 	for (auto krs : kurser) {
-		summa += krs.poäng();
+		summa += krs.kurs_längd;
 	}
 	return summa;
 }
 
-std::vector<kurs> program::kurserna()
+std::vector<kurs>* program::kurserna()
 {
-	return kurser;
+	return &kurser;
 }
 
 program& program::operator+=(kurs krs) {

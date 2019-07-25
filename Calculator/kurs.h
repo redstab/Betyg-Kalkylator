@@ -30,30 +30,13 @@ struct kurs {
 		kurs_typ = typ;
 	}
 
-	int poäng() {
-		return kurs_längd;
-	}
-
-
 	double summa() {
 		return kurs_längd * betyg_värde;
-	}
-
-	std::string namn() {
-		return kurs_namn;
-	}
-
-	char betyg() {
-		return betyg_bokstav;
 	}
 
 	void betyg(char input) {
 		betyg_bokstav = input;
 		betyg_värde = grade.at(betyg_bokstav);
-	}
-
-	void poäng(int input) {
-		kurs_längd = input;
 	}
 
 	auto operator<=>(const kurs&) const = default;
@@ -67,8 +50,3 @@ struct kurs {
 
 
 };
-
-static std::ostream& operator<<(std::ostream& os, kurs& m) {
-	return os << m.namn() << " {" << std::endl << "    Betyg: "
-		<< m.betyg() << std::endl << "    Poäng: " << m.poäng() << std::endl << "    Summa: " << m.summa() << std::endl << "}";
-}

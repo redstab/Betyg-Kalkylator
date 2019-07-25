@@ -1,247 +1,337 @@
-﻿// Calculator.cpp : This file contains the 'main' function. Program execution begins and ends there.
-//
+﻿
 #include <iostream>
-#include <vector>
-#include <string>
-#include <Windows.h>
-#include "program.h"
 #include <curses.h>
+#include <vector>
+#include <numeric>
+#include <string>
+#include <functional>
+#include <optional>
+#include <map>
 
-struct coordinate {
+class kurs {
+public:
+	explicit kurs(const std::string& id, const std::string& typ, const std::string& namn, int poäng, char betyg) :
+
+		id_{ id },
+		typ_{ typ },
+		namn_{ namn },
+		poäng_{ poäng },
+		betyg_{ betyg }
+
+	{}
+
+	auto set_id(const std::string& id) { id_ = id; }
+	auto set_typ(const std::string& typ) { typ_ = typ; }
+	auto set_namn(const std::string& namn) { namn_ = namn; }
+	auto set_poäng(int poäng) { poäng_ = poäng; }
+	auto set_betyg(char betyg) { betyg_ = betyg; }
+
+	auto get_id() const { return id_; }
+	auto get_typ() const { return typ_; }
+	auto get_namn() const { return namn_; }
+	auto get_poäng() const { return poäng_; }
+	auto get_betyg() const { return betyg_; }
+	auto get_betygvärde() const { return betygs_värden.at(betyg_); }
+
+	auto operator==(const kurs& krs) {
+		return
+			id_ == krs.get_id() &&
+			typ_ == krs.get_typ() &&
+			namn_ == krs.get_namn() &&
+			poäng_ == krs.get_poäng() &&
+			betyg_ == krs.get_betyg();
+	}
+
+private:
+
+	std::map<char, double> betygs_värden{
+		{'A',20},
+		{'B',17.5},
+		{'C',15},
+		{'D',12.5},
+		{'E',10},
+		{'F',0}
+	};
+
+	std::string id_{};
+	std::string typ_{};
+	std::string namn_{};
+	int poäng_{};
+	char betyg_{};
+
+};
+
+class program {
+public:
+	explicit program(const std::vector<kurs>& kurser) : kurser_(kurser) {}
+
+	auto set_kurser(const std::vector<kurs>& kurser) { kurser_ = kurser; }
+	auto set_merit(double merit) { merit_ = merit; }
+
+	auto get_merit() const { return merit_; }
+	auto get_kurser() const { return &kurser_; }
+
+	auto get_snitt() const { return (std::accumulate(kurser_.begin(), kurser_.end(), static_cast<double>(0), summa) / std::accumulate(kurser_.begin(), kurser_.end(), static_cast<double>(0), poäng)) + merit_; }
+	auto get_sum() const { return std::accumulate(kurser_.begin(), kurser_.end(), static_cast<double>(0), poäng); }
+
+	program& operator+=(const kurs& krs) {
+		kurser_.push_back(krs);
+		return *this;
+	}
+
+	program& operator+(const kurs& krs) {
+		operator+=(krs);
+		return *this;
+	}
+
+	program& operator-=(const kurs& krs) {
+		auto search = std::find(kurser_.begin(), kurser_.end(), krs);
+
+		if (search != kurser_.end()) {
+			kurser_.erase(search);
+		}
+
+		return *this;
+	}
+
+	program& operator-(const kurs& krs) {
+		operator-=(krs);
+		return *this;
+	}
+
+private:
+	std::vector<kurs> kurser_{};
+	double merit_{};
+
+	const std::function<double(double, const kurs&)> summa = [](double result, const kurs& krs) {return result + (krs.get_poäng() * krs.get_betygvärde()); };
+	const std::function<double(double, const kurs&)> poäng = [](double result, const kurs& krs) {return result + krs.get_poäng(); };
+};
+
+struct point {
 	int x;
 	int y;
-
-	coordinate operator-(coordinate const& that) const {
-		return { abs(x - that.x) + 1, abs(y - that.y) + 1 };
-	}
 };
+
+using size = point;
 
 class curse {
 public:
 	curse() {
 		initscr();
 		noecho();
-		cbreak();
 		curs_set(0);
+		keypad(stdscr, TRUE);
+		nonl();
+		refresh();
 	}
 	~curse() {
 		endwin();
 	}
-
-	const void refresh(WINDOW* w) {
-		::refresh();
-		wrefresh(w);
-
-	}
-
-	const void refresh() {
-		::refresh();
-	}
-
-	const void line(WINDOW* w, coordinate ths, coordinate tht) {
-		if (ths.x == tht.x) {
-			vline(w, ths, tht);
-		}
-		else if (ths.y == tht.y) {
-			hline(w, ths, tht);
-		}
-	}
-
-	const void vline(WINDOW* w, coordinate ths, coordinate tht) {
-		mvwvline(w, ths.y, ths.x, 0, abs(ths.y - tht.y));
-	}
-
-	const void hline(WINDOW* w, coordinate ths, coordinate tht) {
-		mvwhline(w, ths.y, ths.x, 0, abs(ths.x - tht.x));
-	}
-
-	const void print(coordinate pnt, std::string msg) {
-		mvprintw(pnt.y, pnt.x, msg.c_str());
-	}
-
-	const void wprint(WINDOW* w, coordinate pnt, std::string msg) {
-		mvwprintw(w, pnt.y, pnt.x, msg.c_str());
-	}
-
-	WINDOW* window(int sx, int sy, int bx, int by) {
-		return newwin(sy, sx, by, bx);
-	}
-
-	WINDOW* window(coordinate size, coordinate pnt) {
-		return newwin(size.y, size.x, pnt.y, pnt.x);
-	}
-
-	WINDOW* swindow(WINDOW* parent, int sx, int sy, int bx, int by) {
-		return subwin(parent, sy, sx, by, bx);
-	}
-
-	WINDOW* dwindow(WINDOW* parent, int sx, int sy, int bx, int by) {
-		return derwin(parent, sy, sx, by, bx);
-	}
-
-	void dot(WINDOW* w, coordinate pnt) {
-		wprint(w, pnt, "#");
-	}
-
 };
 
-class betyg_meny {
+class window {
 public:
-	betyg_meny(std::string titel, program meny_program, int xmrg, int ymrg) :
-		manager(),
-		aktiv(meny_program),
-		kurserna(aktiv.kurserna()),
-		title(titel),
-		xmargin((xmrg <= 30) ? xmrg : 30),
-		ymargin((ymrg <= 5) ? ymrg : 5),
-		xmax(getmaxx(stdscr)),
-		ymax(getmaxy(stdscr)),
-		box_begin{ xmargin, ymargin },
-		box_end{ (xmax - smargin) - xmargin,(ymax - smargin) - ymargin },
-		write_begin{ dmargin, smargin },
-		write_end{ (box_begin - box_end).x - smargin, (box_begin - box_end).y - smargin },
-		title_begin{ center_text((box_begin - box_end).x, title), smargin },
-		first_divisor{ (box_begin - box_end).x / 3, write_end.y - smargin },
-		last_divisor{ ((box_begin - box_end).x * 2) / 3, write_end.y - smargin },
-		main_menu{ manager.window(box_begin - box_end, box_begin) }
+	window(size window_size = { 120, 30 }, std::optional<point> begin_position = std::nullopt) :
+		window_size_{ window_size },
+		screen_size_{ getmaxx(stdscr),getmaxy(stdscr) },
+		begin_position_{ (begin_position.has_value()) ? *begin_position : point({0,0}) },
+		center_{ !begin_position.has_value() },
+		win_{ make_window(window_size_) }
 	{}
 
-	void show_ui() {
-		show_border();
-		show_lines();
-		show_text();
-		manager.refresh(main_menu);
+	auto get_size() const { return window_size_; }
+	auto get_startpos() const { return begin_position_; }
+	auto get_window() const { return win_; }
+
+	auto move_horizontal(int size) {}
+	auto move_vertical(int size) {}
+
+	auto new_position(point pos) {}
+
+private:
+	size window_size_{};
+	size screen_size_{};
+	point begin_position_{};
+	bool center_{};
+
+	WINDOW* win_;
+
+	WINDOW* make_window(size window_size) {
+		return newwin(window_size.y, window_size.x, (center_) ? ((screen_size_.y - window_size.y) / 2) : begin_position_.y, (center_) ? ((screen_size_.x - window_size.x) / 2) : begin_position_.x);
+	}
+};
+// bas klass för alla ui element
+class ui_item {
+public:
+
+	// ärvs av alla härleda klasser
+
+	void set_position(point position) { position_ = position; }
+	point get_position() const { return position_; }
+	void set_window(const window& win) { win_ = win; }
+	window get_window() const { return win_; }
+
+	void clear_item() const {
+		for (auto y = position_.y; y < position_.y + get_size().y; ++y) {
+			for (auto x = position_.x; x < position_.x + get_size().x; ++x) {
+				mvwprintw(win_.get_window(), y, x, " ");
+			}
+		}
 	}
 
-	void show_kurser() {
-		for (auto i = 0; i < kurserna.size(); i++) {
-			print_kurs(4 + i, kurserna.at(i));
-		}
-		manager.refresh(main_menu);
+	void redraw_item() const {
+		clear_item();
+		draw_item();
+	}
+
+	// måste defineras av härleda klasser
+
+	virtual void draw_item() const = 0;
+	virtual size get_size() const = 0;
+
+	// måste inte omdefineras
+	virtual ~ui_item() {}
+protected:
+	point position_;
+	window win_;
+};
+
+class column_list : public ui_item {
+
+};
+// line element ex: -----------------
+class line : public ui_item {
+public:
+	line(point position, int length, const window& win) : length_{ length }
+	{
+		set_position(position);
+		set_window(win);
+	}
+
+	auto set_length(int length) {
+		length_ = length;
+	}
+
+	auto get_length() const { return length_; }
+
+	void draw_item() const {
+		mvwhline(win_.get_window(), position_.y, position_.x, 0, length_);
 	}
 
 private:
+	int length_;
+};
 
-	// NCURSES Manager
-
-	curse manager;
-
-	// Strings
-
-	const std::string title;
-	const std::string snitt = "Snitt =     |";
-	const std::string merit = "Merit =   |";
-	const std::string summa = "Summa =     |";
-
-	// Headers
-
-	const std::string kurs_id = "Kurs";
-	const std::string kurs_typ = "Kurstyp";
-	const std::string kurs_namn = "Kursnamn";
-	const std::string kurs_poäng = "Poäng";
-	const std::string kurs_betyg = "Betyg";
-
-	// Sizes
-
-	const int xmargin;
-	const int ymargin;
-
-	const int skurs = 10;
-	const int skurstyp = 7;
-	const int skursnamn = 25;
-	const int spoäng = 5;
-	const int sbetyg = 5;
-
-	const int dmargin = 2;
-	const int smargin = dmargin / dmargin;
-	const int xmax;
-	const int ymax;
-
-	// Coordinates
-
-	const coordinate box_begin;
-	const coordinate box_end;
-	const coordinate write_begin;
-	const coordinate write_end;
-
-	const coordinate title_begin;
-
-	const coordinate first_divisor;
-	const coordinate last_divisor;
-
-	const coordinate ckurs = { write_begin.x, dmargin };
-	const coordinate ckurstyp = { ckurs.x + skurs + dmargin, dmargin };
-	const coordinate ckursnamn = { ckurstyp.x + skurstyp + dmargin, dmargin };
-	const coordinate cbetyg = {write_end.x - smargin - sbetyg , dmargin};
-	const coordinate cpoäng = {cbetyg.x - dmargin - spoäng, dmargin};
-
-	// Container
-
-	WINDOW* main_menu;
-
-	program aktiv;
-
-	std::vector<kurs> kurserna;
-
-	// Functions
-
-	void show_border() {
-		box(main_menu, 0, 0);
+// text = double kind of element ex: sum = 100.0
+class int_text : public ui_item {
+public:
+	int_text(const window& win, const std::string& prefix, double initial_value, point position) :
+		prefix_{ prefix },
+		value_{ initial_value }
+	{
+		set_position(position);
+		set_window(win);
 	}
 
-	void show_text() {
-		manager.wprint(main_menu, title_begin, title); // Title
-		manager.wprint(main_menu, { center_text((write_begin - first_divisor).x, merit), write_end.y - smargin }, merit); // Merit
-		manager.wprint(main_menu, { center_text((write_begin - write_end).x, snitt), write_end.y - smargin }, snitt); // Snitt
-		manager.wprint(main_menu, { center_text((last_divisor - write_end).x, summa) + (write_begin - last_divisor).x, write_end.y - smargin }, summa); // Summa
+	auto set_prefix(const std::string& prefix) { prefix_ = prefix; }
+	auto get_prefix() const { return prefix_; }
 
-		manager.wprint(main_menu, ckurs, kurs_id);
-		manager.wprint(main_menu, ckurstyp, kurs_typ);
-		manager.wprint(main_menu, ckursnamn, kurs_namn);
+	auto set_value(double value) { value_ = value; }
+	auto get_value() const { return value_; }
 
-		manager.wprint(main_menu, cbetyg, kurs_betyg);
-		manager.wprint(main_menu, cpoäng, kurs_poäng);
+	auto update_prefix(const std::string& prefix) {
+		clear_item();
+		set_prefix(prefix);
+		draw_item();
 	}
 
-	void show_lines() {
-		manager.line(main_menu, { write_begin.x, write_begin.y + dmargin }, { write_end.x - smargin, write_begin.y + dmargin });	// Horizontal header divider
-		manager.line(main_menu, { write_begin.x, write_end.y - dmargin }, { write_end.x - smargin, write_end.y - dmargin });		// Horizontal results divider
-		manager.line(main_menu, first_divisor, { first_divisor.x, first_divisor.y + smargin });										// Vertical merit divider
-		manager.line(main_menu, last_divisor, { last_divisor.x, last_divisor.y + smargin });										// Vertical snitt/summa divider
+	auto update_value(double value) {
+		clear_item();
+		set_value(value);
+		draw_item();
 	}
 
-	void print_kurs(int y, kurs krs) {
-		manager.wprint(main_menu, {ckurs.x , y }, krs.kurs_id);
-		manager.wprint(main_menu, {ckurstyp.x , y }, krs.kurs_typ);
-		manager.wprint(main_menu, {ckursnamn.x , y }, krs.kurs_namn);
-		manager.wprint(main_menu, {cpoäng.x , y }, std::to_string(krs.kurs_längd));
-		manager.wprint(main_menu, {cbetyg.x , y }, std::string(1,krs.betyg_bokstav));
+	auto update(const std::string& prefix, double value) {
+		clear_item();
+		set_prefix(prefix);
+		set_value(value);
+		draw_item();
 	}
 
-	int center_text(int size, std::string text) {
-		return (size - text.length()) / 2;
+	size get_size() const {
+		return {static_cast<int>(std::string(prefix_ + " = " + std::to_string(value_)).length()), 1}; 
 	}
+
+	void draw_item() const {
+		mvwprintw(win_.get_window(), position_.y, position_.x, std::string(prefix_ + " = " + std::to_string(value_)).c_str());
+	}
+
+private:
+	std::string prefix_;
+	double value_;
+};
+
+class text : public ui_item {
+public:
+	text(const window& win, const std::string& text, point position) : text_{ text } {
+		set_position(position);
+		set_window(win);
+	}
+
+	auto set_text(const std::string& text) { text_ = text; }
+	auto get_text() const { return text_; }
+
+	size get_size() const { return { static_cast<int>(text_.length()), 1 }; }
+	
+	auto update_text(const std::string& text) {
+		clear_item();
+		set_text(text);
+		draw_item();
+	}
+
+	void draw_item() const {
+		mvwprintw(win_.get_window(), position_.y, position_.x, text_.c_str());
+	}
+
+private:
+	std::string text_;
+};
+
+class menu_ui {
 
 };
 
-int main()
-{
+int main() {
+	kurs krs("ENG", "GY", "ENGELSKA", 100, 'A');
+	kurs krs1("ENG", "GY", "MATTE", 100, 'B');
 
-	// När man visar en kurs kalkylera om man höjer sitt betyg hur det påverkar snittet samma om man sänker.
+	program prg({ krs,krs1 });
 
-	kurs matte("Matematik 1c", "MATMAT01c", "GYGEM", 'A', hel_kurs);
+	curse();
 
-	kurs engelska("Engelska 5", "ENGENG05", "GYGEM", 'B', hel_kurs);
+	window win({ 20,30 });
 
-	std::vector<kurs> test = { matte, engelska };
+	box(win.get_window(), 0, 0);
 
-	program a({ matte, engelska }, 0);
+	wrefresh(win.get_window());
 
-	betyg_meny m("Betyg Kalkylator", a, 4, 1);
+	clear();
 
-	m.show_ui();
+	mvwin(win.get_window(), 0, 0);
 
-	m.show_kurser();
+	refresh();
+
+	text a(win, "TEZT", { 2,1 });
+	text b(win, "kys", { 0,0 });
+
+
+	b.draw_item();
+
+	a.draw_item();
+
+	a.update_text("H");
+
+	wrefresh(win.get_window());
 
 	getch();
 }
