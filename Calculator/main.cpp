@@ -7,6 +7,8 @@
 #include <functional>
 #include <optional>
 #include <map>
+#include <variant>
+#include <array>
 
 class kurs {
 public:
@@ -69,7 +71,7 @@ public:
 	auto set_merit(double merit) { merit_ = merit; }
 
 	auto get_merit() const { return merit_; }
-	auto get_kurser() const { return &kurser_; }
+	auto get_kurser() { return &kurser_; }
 
 	auto get_snitt() const { return (std::accumulate(kurser_.begin(), kurser_.end(), static_cast<double>(0), summa) / std::accumulate(kurser_.begin(), kurser_.end(), static_cast<double>(0), poäng)) + merit_; }
 	auto get_sum() const { return std::accumulate(kurser_.begin(), kurser_.end(), static_cast<double>(0), poäng); }
@@ -143,10 +145,21 @@ public:
 	auto get_startpos() const { return begin_position_; }
 	auto get_window() const { return win_; }
 
-	auto move_horizontal(int size) {}
-	auto move_vertical(int size) {}
+	auto show_border() const {
+		wborder(win_, 0, 0, 0, 0, 0, 0, 0, 0);
+		wrefresh(win_);
+	}
 
-	auto new_position(point pos) {}
+	auto hide_border() const {
+		wborder(win_, ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ');
+		wrefresh(win_);
+	}
+
+	auto move_window(point pos) const {
+		clear();
+		mvwin(get_window(), pos.y, pos.x);
+		refresh();
+	}
 
 private:
 	size window_size_{};
@@ -171,6 +184,14 @@ public:
 	void set_window(const window& win) { win_ = win; }
 	window get_window() const { return win_; }
 
+	void move_item(point new_position) {
+		clear_item();
+
+		set_position(new_position);
+
+		draw_item();
+	}
+
 	void clear_item() const {
 		for (auto y = position_.y; y < position_.y + get_size().y; ++y) {
 			for (auto x = position_.x; x < position_.x + get_size().x; ++x) {
@@ -188,7 +209,6 @@ public:
 
 	virtual void draw_item() const = 0;
 	virtual size get_size() const = 0;
-
 	// måste inte omdefineras
 	virtual ~ui_item() {}
 protected:
@@ -196,23 +216,22 @@ protected:
 	window win_;
 };
 
-class column_list : public ui_item {
+// Generic UI Elements
 
-};
 // line element ex: -----------------
 class line : public ui_item {
 public:
-	line(point position, int length, const window& win) : length_{ length }
+	line(const window& win, point position, int length) : length_{ length }
 	{
 		set_position(position);
 		set_window(win);
 	}
 
-	auto set_length(int length) {
-		length_ = length;
-	}
+	auto set_length(int length) { length_ = length; }
 
 	auto get_length() const { return length_; }
+
+	size get_size() const { return { length_, 1 }; }
 
 	void draw_item() const {
 		mvwhline(win_.get_window(), position_.y, position_.x, 0, length_);
@@ -239,27 +258,20 @@ public:
 	auto set_value(double value) { value_ = value; }
 	auto get_value() const { return value_; }
 
-	auto update_prefix(const std::string& prefix) {
+	void update(const std::string& value) {
 		clear_item();
-		set_prefix(prefix);
+		set_prefix(value);
 		draw_item();
 	}
 
-	auto update_value(double value) {
+	void update(double value) {
 		clear_item();
-		set_value(value);
-		draw_item();
-	}
-
-	auto update(const std::string& prefix, double value) {
-		clear_item();
-		set_prefix(prefix);
 		set_value(value);
 		draw_item();
 	}
 
 	size get_size() const {
-		return {static_cast<int>(std::string(prefix_ + " = " + std::to_string(value_)).length()), 1}; 
+		return { static_cast<int>(std::string(prefix_ + " = " + std::to_string(value_)).length()), 1 };
 	}
 
 	void draw_item() const {
@@ -271,8 +283,15 @@ private:
 	double value_;
 };
 
+// text ex: hello
 class text : public ui_item {
 public:
+	text() :
+		text_{ "" }
+	{
+		set_position({ 0,0 });
+	}
+
 	text(const window& win, const std::string& text, point position) : text_{ text } {
 		set_position(position);
 		set_window(win);
@@ -282,7 +301,7 @@ public:
 	auto get_text() const { return text_; }
 
 	size get_size() const { return { static_cast<int>(text_.length()), 1 }; }
-	
+
 	auto update_text(const std::string& text) {
 		clear_item();
 		set_text(text);
@@ -297,6 +316,63 @@ private:
 	std::string text_;
 };
 
+// Specialized UI Elements
+
+class kurs_list : public ui_item {
+public:
+	kurs_list(const window& win, const program& prg, point position, size max_size) :
+		max_{ max_size },
+		aktiv_program_{ prg },
+		kurser_{ aktiv_program_.get_kurser() },
+		text_headers_{
+			"Kurs",
+			"Kurstyp",
+			"Kursnamn",
+			"Po" + std::string(1, 132) + "ng",
+			"Betyg"
+		}
+	{
+		set_window(win);
+		set_position(position);
+		update_headers(text_headers_);
+	}
+
+	size get_size() const {
+		return { max_.x - position_.x, max_.y - position_.y };
+	}
+
+	void update_headers(const std::array<std::string, 5>& header_text) {
+		for (auto i = 0; i < headers_.size(); ++i) {
+			headers_.at(i).set_text(header_text.at(i));
+
+			int divided_length = max_.x / headers_.size();
+
+			int first_intersection = divided_length * i;
+
+			int header_position = first_intersection + ((divided_length - headers_.at(i).get_text().length()) / 2);
+
+			headers_.at(i).set_position({ header_position + position_.x, position_.y });
+
+			headers_.at(i).set_window(win_);
+		}
+		wrefresh(win_.get_window());
+	}
+
+	void draw_item() const {
+		for (auto i : headers_) {
+			i.draw_item();
+		}
+	}
+private:
+	size max_;
+	program aktiv_program_;
+	std::vector<kurs>* kurser_;
+	std::array<text, 5> headers_;
+	std::array<std::string, 5> text_headers_;
+
+};
+
+
 class menu_ui {
 
 };
@@ -307,31 +383,21 @@ int main() {
 
 	program prg({ krs,krs1 });
 
-	curse();
+	curse c;
 
-	window win({ 20,30 });
+	window win({ 113,25 });
+	win.show_border();
+	kurs_list a(win, prg, { 2,1 }, { 111, 24 });
 
-	box(win.get_window(), 0, 0);
+	for (auto y = 0; y < win.get_size().y; ++y) {
+		for (auto x = 0; x < win.get_size().x; ++x) {
+			mvwprintw(win.get_window(), y, x, "+");
+		}
+	}
 
-	wrefresh(win.get_window());
-
-	clear();
-
-	mvwin(win.get_window(), 0, 0);
-
-	refresh();
-
-	text a(win, "TEZT", { 2,1 });
-	text b(win, "kys", { 0,0 });
-
-
-	b.draw_item();
-
-	a.draw_item();
-
-	a.update_text("H");
+	a.redraw_item();
+	a.update_headers({ "first", "second", "third", "forth", "fifth" });
 
 	wrefresh(win.get_window());
-
 	getch();
 }
