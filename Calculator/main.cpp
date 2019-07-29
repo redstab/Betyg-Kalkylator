@@ -283,6 +283,8 @@ private:
 	double value_;
 };
 
+
+
 // text ex: hello
 class text : public ui_item {
 public:
@@ -316,6 +318,82 @@ private:
 	std::string text_;
 };
 
+template <const int n> class header : public ui_item {
+public:
+	header(const window& win, std::array<std::string, n> header_text, point position, int max_size) :
+		max_size_{ max_size },
+		header_length_{ max_size_.x / n }
+	{
+		set_position(position);
+		set_window(win);
+		update_headers(header_text);
+	}
+
+	void fit_header(std::array<int, n> limits, int seperation) {
+		clear_item();
+		wrefresh(win_.get_window());
+		int padding = 4;
+		int total = padding; // start after the padding
+		for (auto i = 0; i < seperation; ++i) { // Float left
+
+			headers_.at(i).set_position({ total, position_.y});
+
+			if (limits.at(i) < headers_.at(i).get_text().length()) { // If limit is less than label, otherwise overlapping
+				total += headers_.at(i).get_text().length() - limits.at(i);
+			}
+
+			total += limits.at(i) + padding;
+
+		}
+
+		total = win_.get_size().x;
+
+		for (auto i = n-1; i >= seperation; --i) { // Float right
+
+			if (limits.at(i) < headers_.at(i).get_text().length()) { // If limit is less than label, otherwise overlapping
+				total -= headers_.at(i).get_text().length() - limits.at(i);
+			}
+
+			total -= limits.at(i) + padding;
+
+			headers_.at(i).set_position({ total, position_.y });
+
+		}
+
+	}
+
+	size get_size() const {
+		return { max_size_.x - position_.x , 1 };
+	}
+
+	void draw_item() const {
+		for (auto i : headers_) {
+			i.draw_item();
+		}
+	}
+
+private:
+	size max_size_;
+	const int header_length_;
+	std::array<text, n> headers_;
+
+	int calculate_center(int full_length, int partial) {
+		return (full_length - partial) / 2;
+	}
+
+	void update_headers(std::array <std::string, n> header_text) {
+		for (auto i = 0; i < n; ++i) {
+			headers_.at(i).set_text(header_text.at(i));
+
+			int divided_length = max_size_.x / n;
+
+			headers_.at(i).set_position({ divided_length * i + position_.x, position_.y });
+
+			headers_.at(i).set_window(win_);
+		}
+	}
+};
+
 // Specialized UI Elements
 
 class kurs_list : public ui_item {
@@ -330,7 +408,7 @@ public:
 			"Kursnamn",
 			"Po" + std::string(1, 132) + "ng",
 			"Betyg"
-		}
+	}
 	{
 		set_window(win);
 		set_position(position);
@@ -341,7 +419,7 @@ public:
 		return { max_.x - position_.x, max_.y - position_.y };
 	}
 
-	void update_headers(const std::array<std::string, 5>& header_text) {
+	void update_headers(const std::array<std::string, 5> & header_text) {
 		for (auto i = 0; i < headers_.size(); ++i) {
 			headers_.at(i).set_text(header_text.at(i));
 
@@ -362,7 +440,10 @@ public:
 		for (auto i : headers_) {
 			i.draw_item();
 		}
+
+
 	}
+
 private:
 	size max_;
 	program aktiv_program_;
@@ -378,26 +459,29 @@ class menu_ui {
 };
 
 int main() {
-	kurs krs("ENG", "GY", "ENGELSKA", 100, 'A');
-	kurs krs1("ENG", "GY", "MATTE", 100, 'B');
+	kurs engelska("ENGENG05", "GYGEM", "Engelska 5", 100, 'A');
+	kurs historia("HISHIS01a1", "GYGEM", "Historia 1a1", 50, 'B');
 
-	program prg({ krs,krs1 });
+	program prg({ engelska,historia });
 
 	curse c;
 
 	window win({ 113,25 });
 	win.show_border();
-	kurs_list a(win, prg, { 2,1 }, { 111, 24 });
 
-	for (auto y = 0; y < win.get_size().y; ++y) {
-		for (auto x = 0; x < win.get_size().x; ++x) {
-			mvwprintw(win.get_window(), y, x, "+");
-		}
-	}
+	header<5> a(win, { "Kurs", "Kurstyp", "Kursnamn", "Po" + std::string(1, 132) + "ng", "Betyg" }, { 2,1 }, 111);
 
-	a.redraw_item();
-	a.update_headers({ "first", "second", "third", "forth", "fifth" });
+	a.fit_header({ 10, 7, 8, 3, 1 }, 3);
 
+	//kurs_list a(win, prg, { 2,8 }, { 111, 24 });
+
+	//for (auto y = 0; y < win.get_size().y; ++y) {
+	//	for (auto x = 0; x < win.get_size().x; ++x) {
+	//		mvwprintw(win.get_window(), y, x, "+");
+	//	}
+	//}
+
+	a.draw_item();
 	wrefresh(win.get_window());
 	getch();
 }
