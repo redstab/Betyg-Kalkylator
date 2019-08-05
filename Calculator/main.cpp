@@ -186,9 +186,7 @@ public:
 
 	void move_item(point new_position) {
 		clear_item();
-
 		set_position(new_position);
-
 		draw_item();
 	}
 
@@ -212,7 +210,7 @@ public:
 	// måste inte omdefineras
 	virtual ~ui_item() {}
 protected:
-	point position_;
+	point position_{};
 	window win_;
 };
 
@@ -258,18 +256,6 @@ public:
 	auto set_value(double value) { value_ = value; }
 	auto get_value() const { return value_; }
 
-	void update(const std::string& value) {
-		clear_item();
-		set_prefix(value);
-		draw_item();
-	}
-
-	void update(double value) {
-		clear_item();
-		set_value(value);
-		draw_item();
-	}
-
 	size get_size() const {
 		return { static_cast<int>(std::string(prefix_ + " = " + std::to_string(value_)).length()), 1 };
 	}
@@ -288,8 +274,7 @@ private:
 // text ex: hello
 class text : public ui_item {
 public:
-	text() :
-		text_{ "" }
+	text()
 	{
 		set_position({ 0,0 });
 	}
@@ -318,47 +303,32 @@ private:
 	std::string text_;
 };
 
+struct header_item {
+	std::string txt;
+	int write_limit;
+};
+
 template <const int n> class header : public ui_item {
 public:
-	header(const window& win, std::array<std::string, n> header_text, point position, int max_size) :
+	header(const window& win, std::array<header_item, n> header_text, point position, int max_size, int seperation) :
 		max_size_{ max_size },
-		header_length_{ max_size_.x / n }
+		header_text_{ header_text },
+		seperation_point_{ seperation }
 	{
 		set_position(position);
 		set_window(win);
-		update_headers(header_text);
+		initialize_headers();
 	}
 
-	void fit_header(std::array<int, n> limits, int seperation) {
-		clear_item();
-		wrefresh(win_.get_window());
-		int padding = 4;
-		int total = padding; // start after the padding
-		for (auto i = 0; i < seperation; ++i) { // Float left
+	void set_headers(std::array<text, n> headers) {
+		headers_ = headers;
+	}
 
-			headers_.at(i).set_position({ total, position_.y});
+	std::array<text, n> get_headers() const {
+		return headers_;
+	}
 
-			if (limits.at(i) < headers_.at(i).get_text().length()) { // If limit is less than label, otherwise overlapping
-				total += headers_.at(i).get_text().length() - limits.at(i);
-			}
-
-			total += limits.at(i) + padding;
-
-		}
-
-		total = win_.get_size().x;
-
-		for (auto i = n-1; i >= seperation; --i) { // Float right
-
-			if (limits.at(i) < headers_.at(i).get_text().length()) { // If limit is less than label, otherwise overlapping
-				total -= headers_.at(i).get_text().length() - limits.at(i);
-			}
-
-			total -= limits.at(i) + padding;
-
-			headers_.at(i).set_position({ total, position_.y });
-
-		}
+	std::array<point, n> get_header_position() const {
 
 	}
 
@@ -374,22 +344,52 @@ public:
 
 private:
 	size max_size_;
-	const int header_length_;
 	std::array<text, n> headers_;
+	std::array<header_item, n> header_text_;
+	std::array<point, n> positions_;
+	int seperation_point_;
+	const int padding = 4;
 
-	int calculate_center(int full_length, int partial) {
-		return (full_length - partial) / 2;
+	void initialize_headers() {
+		std::for_each(headers_.begin(), headers_.end(), [&](text& txt) {txt.set_window(win_); });
+
+		for (size_t i = 0; i < n; ++i) {
+			headers_.at(i).set_text(header_text_.at(i).txt);
+		}
+
+		set_header_positions(headers_);
 	}
 
-	void update_headers(std::array <std::string, n> header_text) {
-		for (auto i = 0; i < n; ++i) {
-			headers_.at(i).set_text(header_text.at(i));
+	int size_of_header(header_item item) {
+		return std::max(item.write_limit, static_cast<int>(item.txt.length()));
+	}
 
-			int divided_length = max_size_.x / n;
+	void set_header_position(std::array<text, n>& headers, int index, int& tracker) {
 
-			headers_.at(i).set_position({ divided_length * i + position_.x, position_.y });
+		int header_size = size_of_header(header_text_.at(index));
 
-			headers_.at(i).set_window(win_);
+		if (index >= seperation_point_) {
+			tracker -= header_size + padding;
+		}
+
+		headers.at(index).set_position({ tracker, position_.y });
+
+		if (index < seperation_point_) {
+
+			tracker += header_size + padding;
+		}
+	}
+
+	void set_header_positions(std::array<text, n>& headers) {
+
+		int tracker = position_.x + padding + 1; // because of size vs 0 indexing
+
+		int reverse_tracker = max_size_.x + 1; // because of size vs 0 indexing
+
+		for (int i = 0; i < n; ++i) {
+
+			set_header_position(headers, i, (i < seperation_point_) ? tracker : reverse_tracker);
+
 		}
 	}
 };
@@ -403,11 +403,11 @@ public:
 		aktiv_program_{ prg },
 		kurser_{ aktiv_program_.get_kurser() },
 		text_headers_{
-			"Kurs",
-			"Kurstyp",
-			"Kursnamn",
-			"Po" + std::string(1, 132) + "ng",
-			"Betyg"
+			std::string("Kurs"),
+			std::string("Kurstyp"),
+			std::string("Kursnamn"),
+			std::string("Po" + std::string(1, 132) + "ng"),
+			std::string("Betyg")
 	}
 	{
 		set_window(win);
@@ -420,7 +420,7 @@ public:
 	}
 
 	void update_headers(const std::array<std::string, 5> & header_text) {
-		for (auto i = 0; i < headers_.size(); ++i) {
+		for (size_t i = 0; i < headers_.size(); ++i) {
 			headers_.at(i).set_text(header_text.at(i));
 
 			int divided_length = max_.x / headers_.size();
@@ -462,16 +462,23 @@ int main() {
 	kurs engelska("ENGENG05", "GYGEM", "Engelska 5", 100, 'A');
 	kurs historia("HISHIS01a1", "GYGEM", "Historia 1a1", 50, 'B');
 
-	program prg({ engelska,historia });
+	program prg({ engelska, historia });
 
 	curse c;
 
 	window win({ 113,25 });
 	win.show_border();
 
-	header<5> a(win, { "Kurs", "Kurstyp", "Kursnamn", "Po" + std::string(1, 132) + "ng", "Betyg" }, { 2,1 }, 111);
+	header<5> a(win,
+		{
+			header_item{"Kurs", 10},
+			header_item{"Kurstyp", 7},
+			header_item{"Kursnamn", 8},
+			header_item{"Po" + std::string(1, 132) + "ng", 3},
+			header_item{"Betyg", 1}
+		}, { 0,1 }, 111, 3);
 
-	a.fit_header({ 10, 7, 8, 3, 1 }, 3);
+	//a.fit_header({ 10, 7, 8, 3, 1 }, 3);
 
 	//kurs_list a(win, prg, { 2,8 }, { 111, 24 });
 
@@ -480,7 +487,6 @@ int main() {
 	//		mvwprintw(win.get_window(), y, x, "+");
 	//	}
 	//}
-
 	a.draw_item();
 	wrefresh(win.get_window());
 	getch();
