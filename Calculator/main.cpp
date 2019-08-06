@@ -198,14 +198,14 @@ public:
 		}
 	}
 
-	void redraw_item() const {
+	void redraw_item() {
 		clear_item();
 		draw_item();
 	}
 
 	// måste defineras av härleda klasser
 
-	virtual void draw_item() const = 0;
+	virtual void draw_item() = 0;
 	virtual size get_size() const = 0;
 	// måste inte omdefineras
 	virtual ~ui_item() {}
@@ -231,7 +231,7 @@ public:
 
 	size get_size() const { return { length_, 1 }; }
 
-	void draw_item() const {
+	void draw_item() {
 		mvwhline(win_.get_window(), position_.y, position_.x, 0, length_);
 	}
 
@@ -260,7 +260,7 @@ public:
 		return { static_cast<int>(std::string(prefix_ + " = " + std::to_string(value_)).length()), 1 };
 	}
 
-	void draw_item() const {
+	void draw_item() {
 		mvwprintw(win_.get_window(), position_.y, position_.x, std::string(prefix_ + " = " + std::to_string(value_)).c_str());
 	}
 
@@ -295,7 +295,7 @@ public:
 		draw_item();
 	}
 
-	void draw_item() const {
+	void draw_item() {
 		mvwprintw(win_.get_window(), position_.y, position_.x, text_.c_str());
 	}
 
@@ -317,26 +317,51 @@ public:
 	{
 		set_position(position);
 		set_window(win);
-		initialize_headers();
+		set_header_windows();
 	}
 
-	void set_headers(std::array<text, n> headers) {
-		headers_ = headers;
+	std::array<text, n> get_header_texts() const {
+		return header_text_;
 	}
 
-	std::array<text, n> get_headers() const {
-		return headers_;
+	void set_header_texts(std::array<header_item, n> header_texts) {
+		header_text_ = header_texts;
 	}
 
-	std::array<point, n> get_header_position() const {
+	header_item& access_header_text(int header_index) {
+		return header_text_.at(header_index);
+	}
 
+	std::array<point, n> get_header_positions() const {
+		return positions_;
+	}
+
+	int get_max_size() const {
+		return max_size_;
+	}
+
+	void set_max_size(int max_size) {
+		max_size_ = { max_size, position_.y };
 	}
 
 	size get_size() const {
-		return { max_size_.x - position_.x , 1 };
+		return { max_size_.x - position_.x, 1 };
 	}
 
-	void draw_item() const {
+	void set_seperation(int seperation_point) {
+		seperation_point_ = seperation_point;
+	}
+
+	size get_seperation() const {
+		return seperation_point_;
+	}
+
+	void draw_item() {
+		clear_item();
+		update_header_texts();
+		calculate_positions(headers_);
+		update_positions();
+
 		for (auto i : headers_) {
 			i.draw_item();
 		}
@@ -350,45 +375,58 @@ private:
 	int seperation_point_;
 	const int padding = 4;
 
-	void initialize_headers() {
-		std::for_each(headers_.begin(), headers_.end(), [&](text& txt) {txt.set_window(win_); });
-
-		for (size_t i = 0; i < n; ++i) {
+	void update_header_texts() {
+		for (auto i = 0; i < n; ++i) {
 			headers_.at(i).set_text(header_text_.at(i).txt);
 		}
+	}
 
-		set_header_positions(headers_);
+	void update_positions() {
+		for (auto i = 0; i < n; ++i) {
+			headers_.at(i).set_position(positions_.at(i));
+		}
+	}
+
+	void set_header_windows() {
+		for (auto& i : headers_) {
+			i.set_window(win_);
+		}
 	}
 
 	int size_of_header(header_item item) {
 		return std::max(item.write_limit, static_cast<int>(item.txt.length()));
 	}
 
-	void set_header_position(std::array<text, n>& headers, int index, int& tracker) {
+	point calculate_position(std::array<text, n>& headers, int index, int& tracker) {
 
 		int header_size = size_of_header(header_text_.at(index));
+
+		point position;
 
 		if (index >= seperation_point_) {
 			tracker -= header_size + padding;
 		}
 
-		headers.at(index).set_position({ tracker, position_.y });
+		position = { tracker, position_.y };
 
 		if (index < seperation_point_) {
-
 			tracker += header_size + padding;
 		}
+
+		return position;
+
 	}
 
-	void set_header_positions(std::array<text, n>& headers) {
+	void calculate_positions(std::array<text, n>& headers) {
 
-		int tracker = position_.x + padding + 1; // because of size vs 0 indexing
+		int tracker = position_.x + padding ; // + 1 because of size vs 0 indexing
 
-		int reverse_tracker = max_size_.x + 1; // because of size vs 0 indexing
+		int reverse_tracker = max_size_.x; // + 1 because of size vs 0 indexing
 
 		for (int i = 0; i < n; ++i) {
 
-			set_header_position(headers, i, (i < seperation_point_) ? tracker : reverse_tracker);
+			positions_.at(i) = calculate_position(headers, i, (i < seperation_point_) ? tracker : reverse_tracker);
+			// select tracker when it has not reached separation else choose reverse_tracker
 
 		}
 	}
@@ -406,7 +444,7 @@ public:
 			std::string("Kurs"),
 			std::string("Kurstyp"),
 			std::string("Kursnamn"),
-			std::string("Po" + std::string(1, 132) + "ng"),
+			std::string("Po„ng"),
 			std::string("Betyg")
 	}
 	{
@@ -436,12 +474,10 @@ public:
 		wrefresh(win_.get_window());
 	}
 
-	void draw_item() const {
+	void draw_item() {
 		for (auto i : headers_) {
 			i.draw_item();
 		}
-
-
 	}
 
 private:
@@ -452,7 +488,6 @@ private:
 	std::array<std::string, 5> text_headers_;
 
 };
-
 
 class menu_ui {
 
@@ -467,6 +502,7 @@ int main() {
 	curse c;
 
 	window win({ 113,25 });
+
 	win.show_border();
 
 	header<5> a(win,
@@ -474,20 +510,13 @@ int main() {
 			header_item{"Kurs", 10},
 			header_item{"Kurstyp", 7},
 			header_item{"Kursnamn", 8},
-			header_item{"Po" + std::string(1, 132) + "ng", 3},
+			header_item{"Po„ng", 3},
 			header_item{"Betyg", 1}
-		}, { 0,1 }, 111, 3);
+		}, { 1,1 }, 112, 3);
 
-	//a.fit_header({ 10, 7, 8, 3, 1 }, 3);
-
-	//kurs_list a(win, prg, { 2,8 }, { 111, 24 });
-
-	//for (auto y = 0; y < win.get_size().y; ++y) {
-	//	for (auto x = 0; x < win.get_size().x; ++x) {
-	//		mvwprintw(win.get_window(), y, x, "+");
-	//	}
-	//}
 	a.draw_item();
+
 	wrefresh(win.get_window());
+
 	getch();
 }
