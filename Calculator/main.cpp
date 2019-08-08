@@ -303,6 +303,55 @@ private:
 	std::string text_;
 };
 
+class center_title : public ui_item {
+public:
+	center_title(const window& win, const std::string& title, point position, int max_x_size) : 
+		title_{ title }, 
+		max_x_size_{ max_x_size },
+		center_position{calculate_center(title_, max_x_size_), position_.y}
+	{
+		set_position(position);
+		set_window(win);
+	}
+
+	std::string get_title() const {
+		return title_;
+	}
+
+	void set_title(const std::string& title) {
+		title_ = title;
+	}
+
+	int get_max_x() const {
+		return max_x_size_;
+	}
+
+	void set_max_x(int max_x) {
+		max_x_size_ = max_x;
+	}
+
+	size get_size() const {
+		return {max_x_size_, 1};
+	}
+
+	void draw_item() {
+		win_.show_border();
+		center_position.x = calculate_center(title_, max_x_size_);
+		mvwprintw(win_.get_window(), center_position.y, center_position.x, (" " + title_ + " ").c_str());
+	}
+
+
+private:
+	std::string title_;
+	int max_x_size_;
+
+	point center_position;
+
+	int calculate_center(const std::string& txt, int max) {
+		return (max - txt.length()) / 2;
+	}
+};
+
 struct header_item {
 	std::string txt;
 	int write_limit;
@@ -324,7 +373,7 @@ public:
 		return header_text_;
 	}
 
-	void set_header_texts(std::array<header_item, n> header_texts) {
+	void set_header_texts(const std::array<header_item, n>& header_texts) {
 		header_text_ = header_texts;
 	}
 
@@ -341,11 +390,11 @@ public:
 	}
 
 	void set_max_size(int max_size) {
-		max_size_ = { max_size, position_.y };
+		max_size_ = { max_size, 1 };
 	}
 
 	size get_size() const {
-		return { max_size_.x - position_.x, 1 };
+		return {max_size_.x - position_.x, 1};
 	}
 
 	void set_seperation(int seperation_point) {
@@ -393,11 +442,11 @@ private:
 		}
 	}
 
-	int size_of_header(header_item item) {
+	int size_of_header(const header_item& item) {
 		return std::max(item.write_limit, static_cast<int>(item.txt.length()));
 	}
 
-	point calculate_position(std::array<text, n>& headers, int index, int& tracker) {
+	point calculate_position(std::array<text, n> headers, int index, int& tracker) {
 
 		int header_size = size_of_header(header_text_.at(index));
 
@@ -417,7 +466,7 @@ private:
 
 	}
 
-	void calculate_positions(std::array<text, n>& headers) {
+	void calculate_positions(std::array<text, n> headers) {
 
 		int tracker = position_.x + padding ; // + 1 because of size vs 0 indexing
 
@@ -439,53 +488,25 @@ public:
 	kurs_list(const window& win, const program& prg, point position, size max_size) :
 		max_{ max_size },
 		aktiv_program_{ prg },
-		kurser_{ aktiv_program_.get_kurser() },
-		text_headers_{
-			std::string("Kurs"),
-			std::string("Kurstyp"),
-			std::string("Kursnamn"),
-			std::string("Po„ng"),
-			std::string("Betyg")
-	}
+		kurser_{ aktiv_program_.get_kurser() }
 	{
 		set_window(win);
 		set_position(position);
-		update_headers(text_headers_);
 	}
 
 	size get_size() const {
 		return { max_.x - position_.x, max_.y - position_.y };
 	}
 
-	void update_headers(const std::array<std::string, 5> & header_text) {
-		for (size_t i = 0; i < headers_.size(); ++i) {
-			headers_.at(i).set_text(header_text.at(i));
-
-			int divided_length = max_.x / headers_.size();
-
-			int first_intersection = divided_length * i;
-
-			int header_position = first_intersection + ((divided_length - headers_.at(i).get_text().length()) / 2);
-
-			headers_.at(i).set_position({ header_position + position_.x, position_.y });
-
-			headers_.at(i).set_window(win_);
-		}
-		wrefresh(win_.get_window());
-	}
-
 	void draw_item() {
-		for (auto i : headers_) {
-			i.draw_item();
-		}
+
 	}
 
 private:
 	size max_;
 	program aktiv_program_;
 	std::vector<kurs>* kurser_;
-	std::array<text, 5> headers_;
-	std::array<std::string, 5> text_headers_;
+
 
 };
 
@@ -505,6 +526,8 @@ int main() {
 
 	win.show_border();
 
+	center_title b(win, "HELLO ME TITLE", { 0,0 }, 113);
+
 	header<5> a(win,
 		{
 			header_item{"Kurs", 10},
@@ -514,7 +537,15 @@ int main() {
 			header_item{"Betyg", 1}
 		}, { 1,1 }, 112, 3);
 
+	b.draw_item();
+
+	b.set_title("D");
+
+	b.redraw_item();
+
 	a.draw_item();
+	a.access_header_text(1).txt = "SS";
+	a.redraw_item();
 
 	wrefresh(win.get_window());
 
