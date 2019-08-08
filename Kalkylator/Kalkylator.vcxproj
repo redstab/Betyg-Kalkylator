@@ -72,8 +72,8 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\dev\lib\pdcurses;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\dev\lib\pdcurses\wincon;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\pdcurses;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\pdcurses\wincon;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
