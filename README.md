@@ -1,2 +1,2 @@
 # Betyg Kalkylator
-Verktyg för att beräkna ditt gymnasiala snittbetyg
+Verktyg för att beräkna gymnasiala snittbetyg
