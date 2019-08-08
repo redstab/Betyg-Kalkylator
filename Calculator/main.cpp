@@ -307,8 +307,8 @@ class center_title : public ui_item {
 public:
 	center_title(const window& win, const std::string& title, point position, int max_x_size) : 
 		title_{ title }, 
-		max_x_size_{ max_x_size },
-		center_position{calculate_center(title_, max_x_size_), position_.y}
+		max_x_size_{ max_x_size }
+		//center_position{calculate_center(title_, max_x_size_), position_.y}
 	{
 		set_position(position);
 		set_window(win);
@@ -335,8 +335,8 @@ public:
 	}
 
 	void draw_item() {
-		win_.show_border();
-		center_position.x = calculate_center(title_, max_x_size_);
+		if(position_.y == 0) win_.show_border();
+		center_position = { calculate_center(title_, max_x_size_), position_.y};
 		mvwprintw(win_.get_window(), center_position.y, center_position.x, (" " + title_ + " ").c_str());
 	}
 
@@ -527,6 +527,9 @@ int main() {
 	win.show_border();
 
 	center_title b(win, "HELLO ME TITLE", { 0,0 }, 113);
+	center_title f(win, "HELLO  TITLE", { 0,1 }, 113);
+	center_title d(win, " ME TITLE", { 0,2 }, 113);
+
 
 	header<5> a(win,
 		{
@@ -535,17 +538,14 @@ int main() {
 			header_item{"Kursnamn", 8},
 			header_item{"Po„ng", 3},
 			header_item{"Betyg", 1}
-		}, { 1,1 }, 112, 3);
+		}, { 1,3 }, 112, 3);
 
-	b.draw_item();
+	std::vector<ui_item*> list{&a,&b,&f,&d};
 
-	b.set_title("D");
-
-	b.redraw_item();
-
-	a.draw_item();
-	a.access_header_text(1).txt = "SS";
-	a.redraw_item();
+	for (auto i : list) {
+		i->draw_item();
+		wrefresh(win.get_window());
+	}
 
 	wrefresh(win.get_window());
 
