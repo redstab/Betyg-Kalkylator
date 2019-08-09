@@ -1,79 +1,67 @@
+#include "precompile.h"
 #include "program.h"
 
-program::program(std::vector<kurs> krsr, double mrit)
+program::program(const std::vector<kurs>& kurser) : kurser_{ kurser } {}
+
+void program::set_kurser(const std::vector<kurs>& kurser)
 {
-	kurser = krsr;
-	merit_poäng = mrit;
+	kurser_ = kurser;
 }
 
-double program::beräkna_snitt()
+void program::set_merit(double merit)
 {
+	merit_ = merit;
+}
 
-	double poäng_summa = 0;
+double program::get_merit() const
+{
+	return merit_;
+}
 
-	double betyg_summa = 0;
+std::vector<kurs>* program::get_kurser()
+{
+	return &kurser_;
+}
 
-	for (auto i : kurser) {
+double program::get_snitt() const
+{
+	double summa = std::accumulate(kurser_.begin(), kurser_.end(), 0.0, summa_);
+	double poäng = std::accumulate(kurser_.begin(), kurser_.end(), 0.0, poäng_);
 
-		poäng_summa += i.kurs_längd;
-
-		betyg_summa += i.summa();
-
-	}
-
-	if (betyg_summa != 0 && poäng_summa != 0) {
-		snitt_betyg = betyg_summa / poäng_summa;
-	}
-	else {
-		snitt_betyg = 0.f;
-	}
+	return (summa / poäng) + merit_;
 	
-	return snitt_betyg + merit_poäng;
 }
 
-double program::merit()
+double program::get_sum() const
 {
-	return merit_poäng;
+	return std::accumulate(kurser_.begin(), kurser_.end(), 0.0, poäng_);
 }
 
-void program::merit(double m)
+program& program::operator+=(const kurs& krs)
 {
-	merit_poäng = m;
-}
-
-double program::program_poäng()
-{
-	double summa = 0;
-	for (auto krs : kurser) {
-		summa += krs.kurs_längd;
-	}
-	return summa;
-}
-
-std::vector<kurs>* program::kurserna()
-{
-	return &kurser;
-}
-
-program& program::operator+=(kurs krs) {
-	kurser.push_back(krs);
+	kurser_.push_back(krs);
 	return *this;
 }
 
-program& program::operator+(kurs krs) {
+program& program::operator+(const kurs& krs)
+{
 	operator+=(krs);
 	return *this;
 }
 
-program& program::operator-=(kurs krs) {
-	auto search = std::find(kurser.begin(), kurser.end(), krs);
-	if (search != kurser.end()) {
-		kurser.erase(search);
+program& program::operator-=(const kurs& krs)
+{
+	auto search = std::find(kurser_.begin(), kurser_.end(), krs);
+
+	if (search != kurser_.end()) {
+		kurser_.erase(search);
 	}
+
 	return *this;
 }
 
-program& program::operator-(kurs krs) {
+program& program::operator-(const kurs& krs)
+{
 	operator-=(krs);
 	return *this;
 }

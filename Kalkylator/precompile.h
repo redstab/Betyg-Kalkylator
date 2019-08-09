@@ -1,0 +1,11 @@
+#pragma once
+#include <iostream>
+#include <curses.h>
+#include <vector>
+#include <numeric>
+#include <string>
+#include <functional>
+#include <optional>
+#include <map>
+#include <variant>
+#include <array>

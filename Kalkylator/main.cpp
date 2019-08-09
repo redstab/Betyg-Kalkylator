@@ -1,15 +1,6 @@
-﻿
-#include <iostream>
-#include <curses.h>
-#include <vector>
-#include <numeric>
-#include <string>
-#include <functional>
-#include <optional>
-#include <map>
-#include <variant>
-#include <array>
+﻿#include "precompile.h"
 
+/*
 class kurs {
 public:
 	explicit kurs(const std::string& id, const std::string& typ, const std::string& namn, int poäng, char betyg) :
@@ -512,10 +503,10 @@ private:
 
 class menu_ui {
 
-};
+};*/
 
 int main() {
-	kurs engelska("ENGENG05", "GYGEM", "Engelska 5", 100, 'A');
+	/*kurs engelska("ENGENG05", "GYGEM", "Engelska 5", 100, 'A');
 	kurs historia("HISHIS01a1", "GYGEM", "Historia 1a1", 50, 'B');
 
 	program prg({ engelska, historia });
@@ -549,5 +540,5 @@ int main() {
 
 	wrefresh(win.get_window());
 
-	getch();
+	getch();*/
 }

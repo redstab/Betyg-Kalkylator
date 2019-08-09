@@ -1,52 +1,39 @@
 #pragma once
-#include <compare>
-#include <map>
-#include <string>
-#include <iostream>
-#include <vector>
+#include "precompile.h"
+class kurs
+{
+public:
+	kurs(const std::string& id, const std::string& typ, const std::string& namn, int poäng, char betyg);
+	
+	void set_id(const std::string& id);
+	void set_typ(const std::string& typ);
+	void set_namn(const std::string& namn);
+	void set_poäng(int poäng);
+	void set_betyg(char betyg);
 
-static std::map<char, double> grade{
-	{'A', 20},
-	{'B', 17.5},
-	{'C', 15},
-	{'D', 12.5},
-	{'E', 10},
-	{'F', 0}
+	std::string get_id() const;
+	std::string get_typ() const;
+	std::string get_namn() const;
+	int get_poäng() const;
+	char get_betyg() const;
+	double get_betygvärde() const;
+
+	bool operator==(const kurs& krs);
+
+private:
+	std::map<char, double> betygs_värden_{
+		{'A',20},
+		{'B',17.5},
+		{'C',15},
+		{'D',12.5},
+		{'E',10},
+		{'F',0}
+	};
+
+	std::string id_{};
+	std::string typ_{};
+	std::string namn_{};
+	int poäng_{};
+	char betyg_{};
 };
 
-enum poäng {
-	hel_kurs = 100,
-	halv_kurs = 50
-};
-
-struct kurs {
-
-	kurs(std::string namn = "", std::string identifikation = "", std::string typ = "", char b = 'F', poäng p = hel_kurs) {
-		betyg_bokstav = b;
-		betyg_värde = grade.at(betyg_bokstav);
-		kurs_längd = p;
-		kurs_namn = namn;
-		kurs_id = identifikation;
-		kurs_typ = typ;
-	}
-
-	double summa() {
-		return kurs_längd * betyg_värde;
-	}
-
-	void betyg(char input) {
-		betyg_bokstav = input;
-		betyg_värde = grade.at(betyg_bokstav);
-	}
-
-	auto operator<=>(const kurs&) const = default;
-
-	std::string kurs_namn;
-	char betyg_bokstav;
-	double betyg_värde;
-	int kurs_längd;
-	std::string kurs_id;
-	std::string kurs_typ;
-
-
-};

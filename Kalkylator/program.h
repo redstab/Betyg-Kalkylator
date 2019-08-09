@@ -1,32 +1,33 @@
 #pragma once
+#include "precompile.h"
 #include "kurs.h"
-
-class program {
-
+class program
+{
 public:
-	program(std::vector<kurs>, double);
+	program(const std::vector<kurs>& kurser);
 
-	double beräkna_snitt();
+	void set_kurser(const std::vector<kurs>& kurser);
+	void set_merit(double merit);
 
-	double merit();
+	double get_merit() const;
+	std::vector<kurs>* get_kurser();
 
-	void merit(double);
+	double get_snitt() const;
+	double get_sum() const;
 
-	double program_poäng();
+	program& operator+=(const kurs& krs);
 
-	std::vector<kurs>* kurserna();
+	program& operator+(const kurs& krs);
 
-	program& operator+=(kurs);
+	program& operator-=(const kurs& krs);
 
-	program& operator+(kurs);
-
-	program& operator-=(kurs);
-
-	program& operator-(kurs);
-
+	program& operator-(const kurs& krs);
 private:
-	std::vector<kurs> kurser;
-	double snitt_betyg;
-	double merit_poäng;
+	std::vector<kurs> kurser_{};
+	double merit_{};
+
+	const std::function<double(double, const kurs&)> summa_ = [](double result, const kurs& krs) {return result + (krs.get_poäng() * krs.get_betygvärde()); };
+	const std::function<double(double, const kurs&)> poäng_ = [](double result, const kurs& krs) {return result + krs.get_poäng(); };
 
 };
+
