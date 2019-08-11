@@ -9,6 +9,12 @@ window::window(size window_size, std::optional<point> position) :
 	window_{ make_window(window_size_) }
 {}
 
+
+WINDOW* window::get_window() const
+{
+	return window_;
+}
+
 size window::get_size() const
 {
 	return window_size_;
@@ -30,19 +36,26 @@ void window::move_window(point position)
 	mvwin(window_, position.y, position.x);
 }
 
-void window::show_border() const
+void window::show_border()
 {
+	border_ = true;
 	wborder(window_, 0, 0, 0, 0, 0, 0, 0, 0);
 	wrefresh(window_);
 }
 
-void window::hide_border() const
+void window::hide_border()
 {
+	border_ = false;
 	wborder(window_, ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ');
 	wrefresh(window_);
 }
 
+bool window::has_border() const
+{
+	return border_;
+}
+
 WINDOW* window::make_window(size window_size)
 {
-	return newwin(window_size.y, window_size.x, (center_) ? ((screen_size_.y - window_size.y) / 2) : position_.y, (center_) ? ((screen_size_.x - window_size.x) / 2) : position_.x);;
+	return newwin(window_size.y, window_size.x, (center_) ? ((screen_size_.y - window_size.y) / 2) : position_.y, (center_) ? ((screen_size_.x - window_size.x) / 2) : position_.x);
 }

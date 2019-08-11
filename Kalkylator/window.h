@@ -7,7 +7,7 @@ public:
 	
 	window(size window_size = {120,30}, std::optional<point> begin_position = std::nullopt);
 
-	WINDOW* get_window() const { return window_; };
+	WINDOW* get_window() const;
 
 	size get_size() const;
 
@@ -17,15 +17,18 @@ public:
 
 	void move_window(point position);
 
-	void show_border() const;
+	void show_border();
 	
-	void hide_border() const;
+	void hide_border();
+
+	bool has_border() const;
 
 private:
 	size window_size_{};
 	size screen_size_{};
 	point position_{};
 	bool center_{};
+	bool border_{};
 
 	WINDOW* window_;
 	

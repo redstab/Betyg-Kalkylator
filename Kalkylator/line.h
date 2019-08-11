@@ -16,8 +16,8 @@ public:
 	void set_length(int length);
 	int get_length() const;
 
-	size get_size() const;
-	void draw_item() const;
+	size get_element_size() const;
+	void draw_element() const;
 
 private:
 	int length_;

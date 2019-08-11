@@ -1,4 +1,9 @@
 ﻿#include "precompile.h"
+#include "title.h"
+#include "window.h"
+#include "curse.h"
+#include "line.h"
+
 
 /*
 class kurs {
@@ -506,6 +511,31 @@ class menu_ui {
 };*/
 
 int main() {
+
+	curse c;
+
+	window win({ 113,25 });
+
+	win.show_border();
+	//win.hide_border();
+	//refresh();
+	title a(win, " TET TILE ", 0);
+	a.set_text(" TET TILE ");
+	line b(win, {6, 7}, 30, orientation::horizontal);
+	text d(win, "hellop", { 8, 7 });
+	a.draw_element();
+	b.draw_element();
+	d.draw_element();
+	a.set_text(" t ");
+	d.set_text("t");
+
+	a.draw_element();
+	d.redraw_element();
+
+	wrefresh(win.get_window());
+
+	getch();
+
 	/*kurs engelska("ENGENG05", "GYGEM", "Engelska 5", 100, 'A');
 	kurs historia("HISHIS01a1", "GYGEM", "Historia 1a1", 50, 'B');
 

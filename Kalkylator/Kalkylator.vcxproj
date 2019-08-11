@@ -31,6 +31,7 @@
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
+    <EnableUnitySupport>true</EnableUnitySupport>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -96,6 +97,12 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <PrecompiledHeaderFile>precompile.h</PrecompiledHeaderFile>
+      <TreatWarningAsError>false</TreatWarningAsError>
+      <MultiProcessorCompilation>false</MultiProcessorCompilation>
+      <StructMemberAlignment>Default</StructMemberAlignment>
+      <DiagnosticsFormat>Column</DiagnosticsFormat>
+      <ControlFlowGuard>false</ControlFlowGuard>
+      <FloatingPointExceptions>true</FloatingPointExceptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

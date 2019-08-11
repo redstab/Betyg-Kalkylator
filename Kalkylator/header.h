@@ -19,13 +19,13 @@ public:
 
 	void set_max_size(int max_size);
 
-	size get_size() const;
+	size get_element_size() const;
 
 	void set_seperation(int seperation_point);
 
 	size get_seperation() const;
 
-	void draw_item();
+	void draw_element();
 private:
 	int max_header_length_;
 	int seperation_index_;

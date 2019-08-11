@@ -37,8 +37,10 @@ void ui_element::clear_element() const
 	for (int y = position_.y; y < position_.y + element_size.y; ++y) {
 		for (int x = position_.x; x < position_.x + element_size.x; ++x) {
 			mvwprintw(window_.get_window(), y, x, " ");
+			wrefresh(window_.get_window());
 		}
 	}
+
 }
 
 void ui_element::redraw_element() const

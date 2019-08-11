@@ -10,8 +10,8 @@ public:
 	void set_value(double value);
 	double get_value() const;
 
-	size get_size() const;
-	void draw_item() const;
+	size get_element_size() const;
+	void draw_element() const;
 
 private:
 	double value_;

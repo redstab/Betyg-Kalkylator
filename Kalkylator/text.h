@@ -7,11 +7,11 @@ class text :
 public:
 	text(const window& win, const std::string& text, point position);
 
-	void set_text(const std::string& text);
+	virtual void set_text(const std::string& text);
 	std::string get_text() const;
 
-	size get_size() const;
-	void draw_item() const;
+	size get_element_size() const;
+	void draw_element() const;
 
 protected:
 	std::string text_;

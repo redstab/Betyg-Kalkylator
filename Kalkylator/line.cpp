@@ -13,12 +13,12 @@ int line::get_length() const
 	return length_;
 }
 
-size line::get_size() const
+size line::get_element_size() const
 {
 	return ((rotation_ == orientation::vertical) ? size{1, length_} : size{length_, 1});
 }
 
-void line::draw_item() const
+void line::draw_element() const
 {
 	int (*line_func)(WINDOW*, int, int, chtype, int) = (rotation_ == orientation::vertical) ? mvwvline : mvwhline; ;
 	
