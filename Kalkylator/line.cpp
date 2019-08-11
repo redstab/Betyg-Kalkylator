@@ -3,6 +3,25 @@
 
 line::line(const window& win, point begin, int length, orientation rotation) : ui_element(win, begin), length_{ length }, rotation_{ rotation } {}
 
+void line::set_orientation(orientation rotation)
+{
+	clear_element();
+
+	if (rotation_ == orientation::horizontal and rotation == orientation::vertical) {
+		length_ /= 2;
+	}
+	else if(rotation_ == orientation::vertical and rotation == orientation::horizontal){
+		length_ *= 2;
+	}
+
+	rotation_ = rotation;
+}
+
+orientation line::get_orientation() const
+{
+	return rotation_;
+}
+
 void line::set_length(int length)
 {
 	length_ = length;

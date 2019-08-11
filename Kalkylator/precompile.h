@@ -7,5 +7,6 @@
 #include <functional>
 #include <optional>
 #include <map>
+#include <algorithm>
 #include <variant>
 #include <array>

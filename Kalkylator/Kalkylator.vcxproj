@@ -169,7 +169,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="header.cpp" />
-    <ClCompile Include="text_header.cpp" />
+    <ClCompile Include="table_header.cpp" />
     <ClCompile Include="integer_text.cpp" />
     <ClCompile Include="kurs.cpp" />
     <ClCompile Include="line.cpp" />
@@ -183,7 +183,7 @@
   <ItemGroup>
     <ClInclude Include="curse.h" />
     <ClInclude Include="header.h" />
-    <ClInclude Include="text_header.h" />
+    <ClInclude Include="table_header.h" />
     <ClInclude Include="integer_text.h" />
     <ClInclude Include="kurs.h" />
     <ClInclude Include="line.h" />

@@ -3,7 +3,7 @@
 #include "window.h"
 #include "curse.h"
 #include "line.h"
-
+#include "header.h"
 
 /*
 class kurs {
@@ -519,19 +519,32 @@ int main() {
 	win.show_border();
 	//win.hide_border();
 	//refresh();
+	header<5> s(win, 
+		{
+			table_header(win, "text", 4),
+			table_header(win, "text", 4),
+			table_header(win, "text", 4),
+			table_header(win, "text", 4),
+			table_header(win, "text", 4)
+		}, {0,1}, win.get_size().x, 2);
+
+	s.draw_element();
+
 	title a(win, " TET TILE ", 0);
-	a.set_text(" TET TILE ");
+	//a.set_text(" TET TILE ");
 	line b(win, {6, 7}, 30, orientation::horizontal);
+	b.set_orientation(orientation::vertical);
 	text d(win, "hellop", { 8, 7 });
 	a.draw_element();
 	b.draw_element();
 	d.draw_element();
 	a.set_text(" t ");
+
 	d.set_text("t");
 
 	a.draw_element();
+	b.redraw_element();
 	d.redraw_element();
-
 	wrefresh(win.get_window());
 
 	getch();

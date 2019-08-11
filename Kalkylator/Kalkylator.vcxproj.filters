@@ -48,7 +48,7 @@
     <ClCompile Include="header.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="text_header.cpp">
+    <ClCompile Include="table_header.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -89,7 +89,7 @@
     <ClInclude Include="precompile.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="text_header.h">
+    <ClInclude Include="table_header.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
