@@ -14,8 +14,10 @@ public:
 	std::string get_id() const;
 	std::string get_typ() const;
 	std::string get_namn() const;
-	int get_poäng() const;
-	char get_betyg() const;
+	char betyg() const;
+	int poäng() const;
+	std::string get_betyg() const;
+	std::string get_poäng() const;
 	double get_betygvärde() const;
 
 	bool operator==(const kurs& krs);

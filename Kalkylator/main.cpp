@@ -4,7 +4,8 @@
 #include "curse.h"
 #include "line.h"
 #include "header.h"
-
+#include "list.h"
+#include "kurs.h"
 /*
 class kurs {
 public:
@@ -514,6 +515,9 @@ int main() {
 
 	curse c;
 
+	kurs engelska("ENGENG05", "GYGEM", "Engelska 5", 100, 'A');
+	kurs historia("HISHIS01a1", "GYGEM", "Historia 1a1", 50, 'B');
+
 	window win({ 113,25 });
 
 	win.show_border();
@@ -521,14 +525,18 @@ int main() {
 	//refresh();
 	header<5> s(win, 
 		{
-			table_header(win, "text", 4),
-			table_header(win, "text", 4),
-			table_header(win, "text", 4),
-			table_header(win, "text", 4),
-			table_header(win, "text", 4)
-		}, {0,1}, win.get_size().x, 2);
+			table_header(win, "text", 10),
+			table_header(win, "text", 7),
+			table_header(win, "text", 8),
+			table_header(win, "text", 3),
+			table_header(win, "text", 1)
+		}, {0,1}, win.get_size().x, 3);
 
 	s.draw_element();
+	
+	list<5, kurs> aass(win, s.get_header_positions(), { engelska, historia },
+		{ &kurs::get_id, &kurs::get_typ, &kurs::get_namn, &kurs::get_poäng, &kurs::get_betyg }, 
+		{ 0,2 });
 
 	title a(win, " TET TILE ", 0);
 	//a.set_text(" TET TILE ");

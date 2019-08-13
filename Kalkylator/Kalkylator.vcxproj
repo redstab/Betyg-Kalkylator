@@ -183,6 +183,7 @@
   <ItemGroup>
     <ClInclude Include="curse.h" />
     <ClInclude Include="header.h" />
+    <ClInclude Include="list.h" />
     <ClInclude Include="table_header.h" />
     <ClInclude Include="integer_text.h" />
     <ClInclude Include="kurs.h" />

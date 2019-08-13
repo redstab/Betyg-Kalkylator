@@ -49,12 +49,22 @@ std::string kurs::get_namn() const
 	return namn_;
 }
 
-int kurs::get_poäng() const
+int kurs::poäng() const
 {
 	return poäng_;
 }
 
-char kurs::get_betyg() const
+std::string kurs::get_betyg() const
+{
+	return std::to_string(betyg());
+}
+
+std::string kurs::get_poäng() const
+{
+	return std::to_string(poäng());
+}
+
+char kurs::betyg() const
 {
 	return betyg_;
 }
@@ -70,6 +80,6 @@ bool kurs::operator==(const kurs& krs)
 		id_ == krs.get_id() &&
 		typ_ == krs.get_typ() &&
 		namn_ == krs.get_namn() &&
-		poäng_ == krs.get_poäng() &&
-		betyg_ == krs.get_betyg();
+		poäng_ == krs.poäng() &&
+		betyg_ == krs.betyg();
 }

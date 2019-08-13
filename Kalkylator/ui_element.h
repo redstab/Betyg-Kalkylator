@@ -5,6 +5,7 @@
 class ui_element
 {
 public:
+	ui_element() {}
 	ui_element(const window& win, point position);
 
 	point get_position() const;

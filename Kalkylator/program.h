@@ -26,8 +26,8 @@ private:
 	std::vector<kurs> kurser_{};
 	double merit_{};
 
-	const std::function<double(double, const kurs&)> summa_ = [](double result, const kurs& krs) {return result + (krs.get_poäng() * krs.get_betygvärde()); };
-	const std::function<double(double, const kurs&)> poäng_ = [](double result, const kurs& krs) {return result + krs.get_poäng(); };
+	const std::function<double(double, const kurs&)> summa_ = [](double result, const kurs& krs) {return result + (krs.poäng() * krs.get_betygvärde()); };
+	const std::function<double(double, const kurs&)> poäng_ = [](double result, const kurs& krs) {return result + krs.poäng(); };
 
 };
 
