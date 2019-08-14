@@ -87,7 +87,7 @@ inline void header<number_of_headers>::set_max_size(int head_length)
 template<int number_of_headers>
 inline size header<number_of_headers>::get_element_size() const
 {
-	return {head_length_, 1};
+	return {head_length_ - 1, 1};
 }
 
 template<int number_of_headers>

@@ -6,11 +6,11 @@ template<typename T> struct column {
 	column() : data(nullptr) {}
 	column(point pos, std::string(T::* dat)() const) : position(pos), data{ dat }, txt() {}
 	point position;
-	std::string(T::*data)() const;
+	std::string(T::* data)() const;
 	text txt;
 };
 
-template<int n,typename T> struct row {
+template<int n, typename T> struct row {
 	row(std::array<column<T>, n> cols, T obj) : columns{ cols }, object{ obj }{}
 	std::array<column<T>, n> columns;
 	T object;
@@ -19,8 +19,18 @@ template<int n,typename T> struct row {
 template<int number_of_columns, typename T>
 class list : public ui_element {
 public:
-	list(const window& win, std::vector<T> items, std::array<column<T>, number_of_columns> columns, header<number_of_columns> head, point position);
-	
+	list(const window& win, std::vector<T> items, std::array<column<T>, number_of_columns> columns, header<number_of_columns>* head, point position);
+
+	void set_length(int length);
+
+	int get_length() const;
+
+	std::vector<T> get_elements() const;
+
+	std::array<point, number_of_columns> get_column_positions() const;
+
+	std::array<int, number_of_columns> get_column_length() const;
+
 	void push_item(const T& item);
 
 	void pop_item(const T& item);
@@ -35,19 +45,66 @@ private:
 
 	std::array<column<T>, number_of_columns> boilerplate_row;
 
+	header<number_of_columns>* headers;
+
 	int list_length;
 
 };
 
 template<int number_of_columns, typename T>
-inline list<number_of_columns, T>::list(const window& win, std::vector<T> items, std::array<column<T>, number_of_columns> columns, header<number_of_columns> head, point position) :
+inline list<number_of_columns, T>::list(const window& win, std::vector<T> items, std::array<column<T>, number_of_columns> columns, header<number_of_columns>* head, point position) :
 	ui_element(win, position),
-	boilerplate_row{columns},
-	list_length{head.get_element_size().x}
+	boilerplate_row{ columns },
+	headers{ head },
+	list_length{ head->get_element_size().x }
 {
 	for (auto i : items) {
 		push_item(i);
 	}
+}
+
+template<int number_of_columns, typename T>
+inline void list<number_of_columns, T>::set_length(int length)
+{
+	list_length = length;
+}
+
+template<int number_of_columns, typename T>
+inline int list<number_of_columns, T>::get_length() const
+{
+	return list_length;
+}
+
+template<int number_of_columns, typename T>
+inline std::vector<T> list<number_of_columns, T>::get_elements() const
+{
+	std::vector<T> object_list;
+
+	object_list.resize(rows.size());
+
+	std::generate(object_list.begin(), object_list.end(), [n = 0, this]() mutable {return rows[n++].object; });
+
+	return object_list;
+}
+
+template<int number_of_columns, typename T>
+inline std::array<point, number_of_columns> list<number_of_columns, T>::get_column_positions() const
+{
+	std::array<point, number_of_columns> positions;
+	
+	std::generate(positions.begin(), positions.end(), [n = 0, this]() mutable {return point{ boilerplate_row[n++].position.x, position_.y }; });
+
+	return positions;
+}
+
+template<int number_of_columns, typename T>
+inline std::array<int, number_of_columns> list<number_of_columns, T>::get_column_length() const
+{
+	std::array<int, number_of_columns> col_length;
+
+	std::generate(col_length.begin(), col_length.end(), [n = 0, this]() mutable {return headers->get_headers()[n++].get_element_size().x; });
+
+	return col_length;
 }
 
 template<int number_of_columns, typename T>
@@ -83,8 +140,7 @@ inline void list<number_of_columns, T>::pop_item(const T& item)
 			auto& col = rows.at(i).columns;
 			for (auto j = 0; j < number_of_columns; ++j) {
 				col[j].txt.clear_element();
-				col[j].position.y--;
-				col[j].txt.set_position(col[j].position);
+				col[j].txt.set_position({ col[j].position.x, --col[j].position.y });
 			}
 		}
 	}
@@ -93,7 +149,7 @@ inline void list<number_of_columns, T>::pop_item(const T& item)
 template<int number_of_columns, typename T>
 inline size list<number_of_columns, T>::get_element_size() const
 {
-	return {list_length, static_cast<int>(rows.size())};
+	return { list_length, static_cast<int>(rows.size()) };
 }
 
 template<int number_of_columns, typename T>

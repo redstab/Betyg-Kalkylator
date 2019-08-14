@@ -302,8 +302,8 @@ private:
 
 class center_title : public ui_item {
 public:
-	center_title(const window& win, const std::string& title, point position, int max_x_size) : 
-		title_{ title }, 
+	center_title(const window& win, const std::string& title, point position, int max_x_size) :
+		title_{ title },
 		max_x_size_{ max_x_size }
 		//center_position{calculate_center(title_, max_x_size_), position_.y}
 	{
@@ -520,19 +520,20 @@ int main() {
 
 	window win({ 113,25 });
 
-	win.show_border();
 	//win.hide_border();
+	win.show_border();
 	//refresh();
-	header<5> s(win, 
+	header<5> s(win,
 		{
 			table_header(win, "text", 10),
 			table_header(win, "text", 7),
 			table_header(win, "text", 8),
 			table_header(win, "text", 3),
 			table_header(win, "text", 1)
-		}, {0,1}, win.get_size().x, 3);
+		}, { 1,2 }, win.get_size().x-1, 3);
 
-	s.draw_element();
+	s.redraw_element();
+
 	auto position = s.get_header_positions();
 	list<5, kurs> aass(win, { engelska, historia }, {
 			column<kurs>(position[0], &kurs::get_id),
@@ -540,32 +541,34 @@ int main() {
 			column<kurs>(position[2], &kurs::get_namn),
 			column<kurs>(position[3], &kurs::get_poäng),
 			column<kurs>(position[4], &kurs::get_betyg)
-		}, s,
-		{ 0,2 });
+		}, &s,
+		{ 1,4 });
+	auto h = aass.get_column_length();
+	line b(win, { 5, 3 }, win.get_size().x - 10, orientation::horizontal);
+
+	b.draw_element();
 
 	aass.draw_element();
 
-	aass.pop_item(engelska);
-
-	aass.clear_element();
+	//aass.pop_item(engelska);
 
 	aass.redraw_element();
 
-	title a(win, " TET TILE ", 0);
+	title a(win, " Window Title ", 1);
 	//a.set_text(" TET TILE ");
-	line b(win, {6, 7}, 30, orientation::horizontal);
-	b.set_orientation(orientation::vertical);
-	text d(win, "hellop", { 8, 7 });
-	a.draw_element();
-	b.draw_element();
-	d.draw_element();
-	a.set_text(" t ");
+	//line b(win, {6, 7}, 30, orientation::horizontal);
+	//b.set_orientation(orientation::vertical);
+	//text d(win, "hellop", { 8, 7 });
+	//a.draw_element();
+	//b.draw_element();
+	//d.draw_element();
+	//a.set_text(" t ");
 
-	d.set_text("t");
+	//d.set_text("t");
 
 	a.draw_element();
-	b.redraw_element();
-	d.redraw_element();
+	//b.redraw_element();
+	//d.redraw_element();
 	wrefresh(win.get_window());
 
 	getch();
