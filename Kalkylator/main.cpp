@@ -533,10 +533,23 @@ int main() {
 		}, {0,1}, win.get_size().x, 3);
 
 	s.draw_element();
-	
-	list<5, kurs> aass(win, s.get_header_positions(), { engelska, historia },
-		{ &kurs::get_id, &kurs::get_typ, &kurs::get_namn, &kurs::get_poäng, &kurs::get_betyg }, 
+	auto position = s.get_header_positions();
+	list<5, kurs> aass(win, { engelska, historia }, {
+			column<kurs>(position[0], &kurs::get_id),
+			column<kurs>(position[1], &kurs::get_typ),
+			column<kurs>(position[2], &kurs::get_namn),
+			column<kurs>(position[3], &kurs::get_poäng),
+			column<kurs>(position[4], &kurs::get_betyg)
+		}, s,
 		{ 0,2 });
+
+	aass.draw_element();
+
+	aass.pop_item(engelska);
+
+	aass.clear_element();
+
+	aass.redraw_element();
 
 	title a(win, " TET TILE ", 0);
 	//a.set_text(" TET TILE ");

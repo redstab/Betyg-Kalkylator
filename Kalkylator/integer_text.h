@@ -11,7 +11,7 @@ public:
 	double get_value() const;
 
 	size get_element_size() const;
-	void draw_element() const;
+	void draw_element();
 
 private:
 	double value_;

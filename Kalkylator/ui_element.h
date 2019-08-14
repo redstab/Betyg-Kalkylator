@@ -16,9 +16,9 @@ public:
 
 	void move_element(point position);
 	void clear_element() const;
-	void redraw_element() const;
+	void redraw_element();
 	
-	virtual void draw_element() const = 0;
+	virtual void draw_element() = 0;
 	virtual size get_element_size() const = 0;
 	virtual ~ui_element(){}
 

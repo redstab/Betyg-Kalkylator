@@ -43,7 +43,7 @@ void ui_element::clear_element() const
 
 }
 
-void ui_element::redraw_element() const
+void ui_element::redraw_element()
 {
 	clear_element();
 	draw_element();

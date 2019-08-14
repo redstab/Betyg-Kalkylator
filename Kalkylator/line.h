@@ -21,7 +21,7 @@ public:
 	int get_length() const;
 
 	size get_element_size() const;
-	void draw_element() const;
+	void draw_element();
 
 protected:
 	int length_;

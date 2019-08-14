@@ -56,7 +56,7 @@ int kurs::poäng() const
 
 std::string kurs::get_betyg() const
 {
-	return std::to_string(betyg());
+	return std::string(1, betyg());
 }
 
 std::string kurs::get_poäng() const

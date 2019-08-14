@@ -18,7 +18,7 @@ void title::set_text(const std::string& txt)
 	text_ = txt;
 }
 
-void title::draw_element() const
+void title::draw_element()
 {
 	point new_position = { (window_.get_size().x - static_cast<int>(get_text().length())) / 2, position_.y };
 	mvwprintw(window_.get_window(), new_position.y, new_position.x, get_text().c_str());

@@ -3,6 +3,7 @@
 class kurs
 {
 public:
+	kurs() {}
 	kurs(const std::string& id, const std::string& typ, const std::string& namn, int poäng, char betyg);
 	
 	void set_id(const std::string& id);
@@ -38,4 +39,3 @@ private:
 	int poäng_{};
 	char betyg_{};
 };
-

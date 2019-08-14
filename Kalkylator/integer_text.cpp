@@ -18,7 +18,7 @@ size integer_text::get_element_size() const
 	return { static_cast<int>(std::string(text_ + " = " + std::to_string(value_)).length()), 1 };
 }
 
-void integer_text::draw_element() const
+void integer_text::draw_element()
 {
 	mvwprintw(window_.get_window(), position_.y, position_.x, std::string(text_ + " = " + std::to_string(value_)).c_str());
 }

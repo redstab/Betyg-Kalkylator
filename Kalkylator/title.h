@@ -9,6 +9,6 @@ public:
 
 	void set_text(const std::string& txt);
 
-	void draw_element() const;
+	void draw_element();
 };
 

@@ -26,7 +26,7 @@ public:
 
 	int get_seperation() const;
 
-	void draw_element() const;
+	void draw_element();
 private:
 	int head_length_;
 	int seperation_;
@@ -104,7 +104,7 @@ inline int header<number_of_headers>::get_seperation() const
 }
 
 template<int number_of_headers>
-inline void header<number_of_headers>::draw_element() const
+inline void header<number_of_headers>::draw_element()
 {
 	for (auto& header_ : headers_) {
 		header_.draw_element();

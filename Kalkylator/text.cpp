@@ -19,7 +19,7 @@ size text::get_element_size() const
 	return {static_cast<int>(text_.length()), 1};
 }
 
-void text::draw_element() const
+void text::draw_element()
 {
 	mvwprintw(window_.get_window(), position_.y, position_.x, text_.c_str());
 }
