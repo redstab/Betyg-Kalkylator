@@ -13,9 +13,6 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="ui_elements">
-      <UniqueIdentifier>{a1453579-9625-46b7-838b-0f42d23d0d40}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -45,10 +42,10 @@
     <ClCompile Include="title.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="header.cpp">
+    <ClCompile Include="table_header.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="table_header.cpp">
+    <ClCompile Include="list_traverser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -93,6 +90,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="list.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="list_traverser.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
