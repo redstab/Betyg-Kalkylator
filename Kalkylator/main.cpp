@@ -6,6 +6,7 @@
 #include "header.h"
 #include "list.h"
 #include "kurs.h"
+#include "list_traverser.h"
 /*
 class kurs {
 public:
@@ -525,11 +526,11 @@ int main() {
 	//refresh();
 	header<5> s(win,
 		{
-			table_header(win, "text", 10),
-			table_header(win, "text", 7),
-			table_header(win, "text", 8),
-			table_header(win, "text", 3),
-			table_header(win, "text", 1)
+			table_header(win, "Kurs", 10),
+			table_header(win, "Kurstyp", 7),
+			table_header(win, "Kursnamn", 8),
+			table_header(win, "Poäng", 3),
+			table_header(win, "Betyg", 1)
 		}, { 1,2 }, win.get_size().x-1, 3);
 
 	s.redraw_element();
@@ -543,8 +544,17 @@ int main() {
 			column<kurs>(position[4], &kurs::get_betyg)
 		}, &s,
 		{ 1,4 });
-	auto h = aass.get_column_length();
 	line b(win, { 5, 3 }, win.get_size().x - 10, orientation::horizontal);
+
+	list_traverser<5, kurs> hh(win, &aass, selection_type::column_selection);
+
+	//hh.move_row(1);
+
+
+
+	//hh.move_row(0);
+
+	//hh.move_column(0);
 
 	b.draw_element();
 
@@ -565,8 +575,35 @@ int main() {
 	//a.set_text(" t ");
 
 	//d.set_text("t");
-
+	hh.select();
 	a.draw_element();
+	wrefresh(win.get_window());
+
+	int key{ 0 };
+
+	while ((key = getch()) && key != 'q') {
+		switch (key) {
+		case KEY_UP:
+			hh.move_cursor(direction::up);
+			break;
+		case KEY_DOWN:
+			hh.move_cursor(direction::down);
+			break;
+		case KEY_RIGHT:
+			hh.move_cursor(direction::right);
+			break;
+		case KEY_LEFT:
+			hh.move_cursor(direction::left);
+			break;
+		case 9:
+			hh.swap_selection_typ();
+			break;
+		}
+
+		wrefresh(win.get_window());
+
+	}
+
 	//b.redraw_element();
 	//d.redraw_element();
 	wrefresh(win.get_window());

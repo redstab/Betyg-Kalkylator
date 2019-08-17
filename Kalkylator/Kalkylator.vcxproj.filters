@@ -45,9 +45,6 @@
     <ClCompile Include="table_header.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="list_traverser.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="kurs.h">

@@ -31,6 +31,8 @@ public:
 
 	std::array<int, number_of_columns> get_column_length() const;
 
+	std::array<column<T>, number_of_columns> get_function_pointer() const;
+
 	int get_max_rows() const;
 
 	void push_item(const T& item);
@@ -96,7 +98,7 @@ inline std::array<point, number_of_columns> list<number_of_columns, T>::get_colu
 	
 	auto columns = headers->get_header_positions();
 
-	std::generate(positions.begin(), positions.end(), [n = 0, this]() mutable {return point{ headers[n++].position.x, position_.y }; });
+	std::generate(positions.begin(), positions.end(), [n = 0, this, columns]() mutable {return point{ columns[n++].x, position_.y }; });
 
 	return positions;
 }
@@ -111,6 +113,12 @@ inline std::array<int, number_of_columns> list<number_of_columns, T>::get_column
 	std::generate(col_length.begin(), col_length.end(), [n = 0, head]() mutable {return head[n++].get_element_size().x; });
 
 	return col_length;
+}
+
+template<int number_of_columns, typename T>
+inline std::array<column<T>, number_of_columns> list<number_of_columns, T>::get_function_pointer() const
+{
+	return boilerplate_row;
 }
 
 template<int number_of_columns, typename T>

@@ -168,7 +168,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="list_traverser.cpp" />
     <ClCompile Include="table_header.cpp" />
     <ClCompile Include="integer_text.cpp" />
     <ClCompile Include="kurs.cpp" />

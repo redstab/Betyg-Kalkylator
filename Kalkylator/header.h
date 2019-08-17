@@ -38,6 +38,8 @@ private:
 	point calculate_position(int index, int& tracker);
 
 	void calculate_positions();
+
+	void set_positions(std::array<point, number_of_headers> input);
 };
 
 template<int number_of_headers>
@@ -137,14 +139,29 @@ template<int number_of_headers>
 inline void header<number_of_headers>::calculate_positions()
 {
 
+	std::array<point, number_of_headers> positions;
+
 	int tracker = position_.x + padding; // + 1 because of size vs 0 indexing
 
 	int reverse_tracker = head_length_; // + 1 because of size vs 0 indexing
 
 	for (int i = 0; i < number_of_headers; ++i) {
 
-		headers_.at(i).set_position(calculate_position(i, (i < seperation_) ? tracker : reverse_tracker));
+		positions.at(i) = calculate_position(i, (i < seperation_) ? tracker : reverse_tracker);
 		// select tracker when it has not reached separation else choose reverse_tracker
 
+	}
+
+	std::reverse(positions.begin() + seperation_, positions.end());
+
+	set_positions(positions);
+	
+}
+
+template<int number_of_headers>
+inline void header<number_of_headers>::set_positions(std::array<point, number_of_headers> input)
+{
+	for (auto i = 0; i < number_of_headers; ++i) {
+		headers_.at(i).set_position(input.at(i));
 	}
 }
