@@ -55,6 +55,7 @@ bool window::has_border() const
 	return border_;
 }
 
+
 WINDOW* window::make_window(size window_size)
 {
 	return newwin(window_size.y, window_size.x, (center_) ? ((screen_size_.y - window_size.y) / 2) : position_.y, (center_) ? ((screen_size_.x - window_size.x) / 2) : position_.x);

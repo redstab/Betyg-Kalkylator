@@ -92,5 +92,8 @@
     <ClInclude Include="list_traverser.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="editor_list.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

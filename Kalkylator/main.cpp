@@ -1,4 +1,11 @@
 ﻿#include "precompile.h"
+#define _CRTDBG_MAP_ALLOC
+#include <stdlib.h>
+#include <crtdbg.h>
+#ifdef _DEBUG
+#define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
+#define new DEBUG_NEW
+#endif
 #include "title.h"
 #include "window.h"
 #include "curse.h"
@@ -6,7 +13,7 @@
 #include "header.h"
 #include "list.h"
 #include "kurs.h"
-#include "list_traverser.h"
+#include "editor_list.h"
 /*
 class kurs {
 public:
@@ -513,6 +520,7 @@ class menu_ui {
 };*/
 
 int main() {
+	{
 
 	curse c;
 
@@ -537,16 +545,18 @@ int main() {
 
 	auto position = s.get_header_positions();
 	list<5, kurs> aass(win, { engelska, historia }, {
-			column<kurs>(position[0], &kurs::get_id),
-			column<kurs>(position[1], &kurs::get_typ),
-			column<kurs>(position[2], &kurs::get_namn),
-			column<kurs>(position[3], &kurs::get_poäng),
-			column<kurs>(position[4], &kurs::get_betyg)
+			column<kurs>(win, position[0], &kurs::get_id),
+			column<kurs>(win, position[1], &kurs::get_typ),
+			column<kurs>(win, position[2], &kurs::get_namn),
+			column<kurs>(win, position[3], &kurs::get_poäng),
+			column<kurs>(win, position[4], &kurs::get_betyg)
 		}, &s,
 		{ 1,4 });
+	
+
 	line b(win, { 5, 3 }, win.get_size().x - 10, orientation::horizontal);
 
-	list_traverser<5, kurs> hh(win, &aass, selection_type::column_selection);
+	editor_list<5, kurs> hh(win, &aass, selection_type::column_selection);
 
 	//hh.move_row(1);
 
@@ -598,6 +608,12 @@ int main() {
 		case 9:
 			hh.swap_selection_typ();
 			break;
+		case '+':
+			hh.add_empty_entry();
+			break;
+		case '-':
+			hh.remove_entry();
+			break;
 		}
 
 		wrefresh(win.get_window());
@@ -607,9 +623,6 @@ int main() {
 	//b.redraw_element();
 	//d.redraw_element();
 	wrefresh(win.get_window());
-
-	getch();
-
 	/*kurs engelska("ENGENG05", "GYGEM", "Engelska 5", 100, 'A');
 	kurs historia("HISHIS01a1", "GYGEM", "Historia 1a1", 50, 'B');
 
@@ -645,4 +658,8 @@ int main() {
 	wrefresh(win.get_window());
 
 	getch();*/
+}
+
+_CrtDumpMemoryLeaks();
+
 }

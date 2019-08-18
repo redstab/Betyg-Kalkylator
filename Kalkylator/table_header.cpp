@@ -1,7 +1,7 @@
 #include "precompile.h"
 #include "table_header.h"
 
-table_header::table_header(const window& win, const std::string& tex, int data_length) : text(win, tex), data_length_{ data_length }{}
+table_header::table_header(const window& win, const std::string& tex, int data_length) : text(win, tex, {0,0}), data_length_{ data_length }{}
 
 size table_header::get_element_size() const
 {

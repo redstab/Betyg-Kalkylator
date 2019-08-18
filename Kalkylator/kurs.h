@@ -1,5 +1,15 @@
 #pragma once
 #include "precompile.h"
+
+static const std::map<char, double> betygs_värden_{
+	{'A',20},
+	{'B',17.5},
+	{'C',15},
+	{'D',12.5},
+	{'E',10},
+	{'F',0}
+};
+
 class kurs
 {
 public:
@@ -24,18 +34,9 @@ public:
 	bool operator==(const kurs& krs);
 
 private:
-	std::map<char, double> betygs_värden_{
-		{'A',20},
-		{'B',17.5},
-		{'C',15},
-		{'D',12.5},
-		{'E',10},
-		{'F',0}
-	};
-
-	std::string id_{};
-	std::string typ_{};
-	std::string namn_{};
-	int poäng_{};
-	char betyg_{};
+	std::string id_ = "empty";
+	std::string typ_ = "empty";
+	std::string namn_ = "empty";
+	int poäng_ = 0;
+	char betyg_ = 'F';
 };

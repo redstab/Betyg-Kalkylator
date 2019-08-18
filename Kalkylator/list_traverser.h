@@ -37,7 +37,7 @@ public:
 
 	void move_cursor(direction dir);
 
-private:
+protected:
 
 	point cursor_{ 0,0 };
 
@@ -93,9 +93,6 @@ inline void list_traverser<col, T>::set_cursor_row(int rw)
 template<int col, typename T>
 inline void list_traverser<col, T>::swap_selection_typ()
 {
-
-	
-
 	if (type_ == selection_type::column_selection) {
 		type_ = selection_type::row_selection;
 		selection_start_.x = list_->get_column_positions().at(0).x;
@@ -107,7 +104,6 @@ inline void list_traverser<col, T>::swap_selection_typ()
 		type_ = selection_type::column_selection;
 	}
 
-	//unselect();
 	update_length();
 	select();
 }

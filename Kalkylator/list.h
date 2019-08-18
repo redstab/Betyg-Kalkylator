@@ -2,9 +2,9 @@
 #include "precompile.h"
 #include "ui_element.h"
 #include "header.h"
+
 template<typename T> struct column {
-	column() : data(nullptr) {}
-	column(point pos, std::string(T::* dat)() const) : position(pos), data{ dat }, txt() {}
+	column(const window& win, point pos, std::string(T::* dat)() const) : position(pos), data{ dat }, txt(win, "", pos) {}
 	point position;
 	std::string(T::* data)() const;
 	text txt;
@@ -12,6 +12,7 @@ template<typename T> struct column {
 
 template<int n, typename T> struct row {
 	row(std::array<column<T>, n> cols, T obj) : columns{ cols }, object{ obj }{}
+
 	std::array<column<T>, n> columns;
 	T object;
 };
@@ -130,22 +131,27 @@ inline int list<number_of_columns, T>::get_max_rows() const
 template<int number_of_columns, typename T>
 inline void list<number_of_columns, T>::push_item(const T& item)
 {
-	std::array<column<T>, number_of_columns> cols;
+	std::array<column<T>, number_of_columns> cols
+	{
+		column<T>(window_, {0,0}, nullptr),
+		column<T>(window_, {0,0}, nullptr),
+		column<T>(window_, {0,0}, nullptr),
+		column<T>(window_, {0,0}, nullptr),
+		column<T>(window_, {0,0}, nullptr)
+	};
 
 	auto columns = headers->get_header_positions();
 
 	for (auto i = 0; i < static_cast<int>(cols.size()); ++i) {
-		column<T> col({ columns.at(i).x, static_cast<int>(rows.size()) + position_.y }, boilerplate_row.at(i).data);
+
+		column<T> col(window_, { columns.at(i).x, static_cast<int>(rows.size()) + position_.y }, boilerplate_row.at(i).data);
 		col.txt.set_text((item.*col.data)());
 		col.txt.set_window(window_);
-		col.txt.set_position(col.position);
-
 		cols.at(i) = col;
+
 	}
 
-	row<number_of_columns, T> rw(cols, item);
-
-	rows.push_back(rw);
+	rows.push_back(row<number_of_columns, T>(cols, item));
 }
 
 template<int number_of_columns, typename T>
@@ -156,7 +162,15 @@ inline void list<number_of_columns, T>::pop_item(const T& item)
 	if (result != rows.end()) {
 		int i = std::distance(rows.begin(), result);
 
+		if (i+1 == static_cast<int>(rows.size())) {
+			auto& col = rows.at(i).columns;
+			for (auto c = 0; c < number_of_columns; ++c) {
+				col[c].txt.clear_element();
+			}
+		}
+
 		rows.erase(result);
+
 
 		for (; i < static_cast<int>(rows.size()); ++i) {
 			auto& col = rows.at(i).columns;
@@ -165,6 +179,8 @@ inline void list<number_of_columns, T>::pop_item(const T& item)
 				col[j].txt.set_position({ col[j].position.x, --col[j].position.y });
 			}
 		}
+
+
 	}
 }
 

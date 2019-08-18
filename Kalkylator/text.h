@@ -5,8 +5,7 @@ class text :
 	public ui_element
 {
 public:
-	text() : text_("") {}
-	text(const window& win, const std::string& text = "", point position = { 0,0 });
+	text(const window& win, const std::string& text, point position);
 
 	void set_text(const std::string& text);
 	std::string get_text() const;
