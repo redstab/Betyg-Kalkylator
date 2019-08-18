@@ -16,6 +16,7 @@ public:
 
 	void edit_entry();
 
+	void edit_column();
 };
 
 template<int col, typename T>
@@ -29,7 +30,6 @@ inline void editor_list<col, T>::add_empty_entry()
 		this->list_->draw_element();
 		this->select();
 	}
-
 }
 
 template<int col, typename T>
@@ -40,14 +40,22 @@ inline void editor_list<col, T>::remove_entry()
 		this->list_->pop_item(this->list_->get_elements().at(this->cursor_.y));
 		this->list_->redraw_element();
 
-		//if ((this->cursor_.y == this->list_->get_max_rows()) and this->cursor_.y != 0) {
-		//	this->move_cursor(direction::up);
-		//}
-		//else if (this->cursor_.y == 0) {
-		//	//add_empty_entry();
-		//}
+		if ((this->cursor_.y == this->list_->get_max_rows()) and this->cursor_.y != 0) {
+			this->move_cursor(direction::up);
+		}
+		else if (this->cursor_.y == 0) {
+			add_empty_entry();
+		}
 
 		this->select();
 
 	}
+}
+
+template<int col, typename T>
+inline void editor_list<col, T>::edit_column()
+{
+	auto col_length = this->list_->get_data_length()[this->cursor_.x];
+
+	// getch in for -> collength
 }

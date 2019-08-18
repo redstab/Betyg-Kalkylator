@@ -8,6 +8,8 @@ public:
 
 	size get_element_size() const;
 
+	int get_data_length() const;
+
 	void set_data_length(int header_length);
 
 private:

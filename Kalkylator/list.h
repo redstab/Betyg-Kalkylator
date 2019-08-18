@@ -34,6 +34,8 @@ public:
 
 	std::array<column<T>, number_of_columns> get_function_pointer() const;
 
+	std::array<int, number_of_columns> get_data_length() const;
+
 	int get_max_rows() const;
 
 	void push_item(const T& item);
@@ -120,6 +122,18 @@ template<int number_of_columns, typename T>
 inline std::array<column<T>, number_of_columns> list<number_of_columns, T>::get_function_pointer() const
 {
 	return boilerplate_row;
+}
+
+template<int number_of_columns, typename T>
+inline std::array<int, number_of_columns> list<number_of_columns, T>::get_data_length() const
+{
+	std::array<int, number_of_columns> col_length;
+
+	auto head = headers->get_headers();
+
+	std::generate(col_length.begin(), col_length.end(), [n = 0, head]() mutable {return head[n++].get_data_length(); });
+
+	return col_length;
 }
 
 template<int number_of_columns, typename T>
