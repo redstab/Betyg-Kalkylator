@@ -3,11 +3,21 @@
 #include "ui_element.h"
 #include "header.h"
 
+struct string{};
+struct integer {
+	int interval;
+};
+struct character {
+	char from, to;
+};
+
 template<typename T> struct column {
-	column(const window& win, point pos, std::string(T::* dat)() const) : position(pos), data{ dat }, txt(win, "", pos) {}
+	column(const window& win, point pos, std::string(T::* dat)() const, void (T::* set)(const std::string&), std::variant<string, integer, character> typ) : position(pos), getter{ dat }, setter(set), txt(win, "", pos), type(typ) {}
 	point position;
-	std::string(T::* data)() const;
+	std::string(T::* getter)() const;
+	void (T::* setter)(const std::string&);
 	text txt;
+	std::variant<string, integer, character> type;
 };
 
 template<int n, typename T> struct row {
@@ -35,6 +45,8 @@ public:
 	std::array<column<T>, number_of_columns> get_function_pointer() const;
 
 	std::array<int, number_of_columns> get_data_length() const;
+
+	std::vector<row<number_of_columns, T>>& get_rows();
 
 	int get_max_rows() const;
 
@@ -137,6 +149,12 @@ inline std::array<int, number_of_columns> list<number_of_columns, T>::get_data_l
 }
 
 template<int number_of_columns, typename T>
+inline std::vector<row<number_of_columns, T>>& list<number_of_columns, T>::get_rows()
+{
+	return rows;
+}
+
+template<int number_of_columns, typename T>
 inline int list<number_of_columns, T>::get_max_rows() const
 {
 	return get_element_size().y;
@@ -147,19 +165,19 @@ inline void list<number_of_columns, T>::push_item(const T& item)
 {
 	std::array<column<T>, number_of_columns> cols
 	{
-		column<T>(window_, {0,0}, nullptr),
-		column<T>(window_, {0,0}, nullptr),
-		column<T>(window_, {0,0}, nullptr),
-		column<T>(window_, {0,0}, nullptr),
-		column<T>(window_, {0,0}, nullptr)
+		column<T>(window_, {0,0}, nullptr, nullptr, boilerplate_row.at(0).type),
+		column<T>(window_, {0,0}, nullptr, nullptr, boilerplate_row.at(1).type),
+		column<T>(window_, {0,0}, nullptr, nullptr, boilerplate_row.at(2).type),
+		column<T>(window_, {0,0}, nullptr, nullptr, boilerplate_row.at(3).type),
+		column<T>(window_, {0,0}, nullptr, nullptr, boilerplate_row.at(4).type)
 	};
 
 	auto columns = headers->get_header_positions();
 
 	for (auto i = 0; i < static_cast<int>(cols.size()); ++i) {
 
-		column<T> col(window_, { columns.at(i).x, static_cast<int>(rows.size()) + position_.y }, boilerplate_row.at(i).data);
-		col.txt.set_text((item.*col.data)());
+		column<T> col(window_, { columns.at(i).x, static_cast<int>(rows.size()) + position_.y }, boilerplate_row.at(i).getter, boilerplate_row.at(i).setter, boilerplate_row.at(i).type);
+		col.txt.set_text((item.*col.getter)());
 		col.txt.set_window(window_);
 		cols.at(i) = col;
 
@@ -185,7 +203,6 @@ inline void list<number_of_columns, T>::pop_item(const T& item)
 
 		rows.erase(result);
 
-
 		for (; i < static_cast<int>(rows.size()); ++i) {
 			auto& col = rows.at(i).columns;
 			for (auto j = 0; j < number_of_columns; ++j) {
@@ -209,7 +226,7 @@ inline void list<number_of_columns, T>::draw_element()
 {
 	for (auto _row : rows) {
 		for (auto col : _row.columns) {
-			col.txt.set_text((_row.object.*col.data)());
+			col.txt.set_text((_row.object.*col.getter)());
 			col.txt.draw_element();
 		}
 	}

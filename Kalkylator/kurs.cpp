@@ -24,14 +24,24 @@ void kurs::set_namn(const std::string& namn)
 	namn_ = namn;
 }
 
-void kurs::set_poäng(int poäng)
+//void kurs::set_poäng(int poäng)
+//{
+//	poäng_ = poäng;
+//}
+//
+//void kurs::set_betyg(char betyg)
+//{
+//	betyg_ = betyg;
+//}
+
+void kurs::set_poäng(const std::string& poäng)
 {
-	poäng_ = poäng;
+	poäng_ = std::stoi(poäng);
 }
 
-void kurs::set_betyg(char betyg)
+void kurs::set_betyg(const std::string& betyg)
 {
-	betyg_ = betyg;
+	betyg_ = std::stoi(betyg);
 }
 
 std::string kurs::get_id() const

@@ -14,7 +14,6 @@ enum class direction {
 	right
 };
 
-
 template<int col, typename T> class list_traverser
 {
 public:
@@ -26,7 +25,9 @@ public:
 
 	void set_cursor_row(int rw);
 
-	void swap_selection_typ();
+	void set_selection_type(selection_type type);
+
+	void swap_selection_type();
 
 	list<col, T>* get_list() const;
 
@@ -69,7 +70,7 @@ inline void list_traverser<col, T>::set_cursor_column(int cl)
 	if (cl < 0) {
 		cl = list_->get_column_positions().size() - 1;
 	}
-	else if (cl > list_->get_column_positions().size() - 1) {
+	else if (cl > static_cast<int>(list_->get_column_positions().size()) - 1) {
 		cl = 0;
 	}
 
@@ -91,7 +92,15 @@ inline void list_traverser<col, T>::set_cursor_row(int rw)
 }
 
 template<int col, typename T>
-inline void list_traverser<col, T>::swap_selection_typ()
+inline void list_traverser<col, T>::set_selection_type(selection_type type)
+{
+	if (type != type_) {
+		swap_selection_type();
+	}
+}
+
+template<int col, typename T>
+inline void list_traverser<col, T>::swap_selection_type()
 {
 	if (type_ == selection_type::column_selection) {
 		type_ = selection_type::row_selection;
@@ -173,7 +182,7 @@ inline void list_traverser<col, T>::update_length()
 		auto text_object = list_->get_elements().at(cursor_.y);
 		auto strfunc_pointer = list_->get_function_pointer().at(cursor_.x);
 
-		length_ = (text_object.*strfunc_pointer.data)().length();
+		length_ = (text_object.*strfunc_pointer.getter)().length();
 	}
 	else {
 		length_ = list_->get_length() - (padding_ * 2);

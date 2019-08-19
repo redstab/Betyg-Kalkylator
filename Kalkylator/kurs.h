@@ -19,8 +19,10 @@ public:
 	void set_id(const std::string& id);
 	void set_typ(const std::string& typ);
 	void set_namn(const std::string& namn);
-	void set_poäng(int poäng);
-	void set_betyg(char betyg);
+	/*void set_poäng(int poäng);*/
+	void set_poäng(const std::string& poäng);
+	/*void set_betyg(char betyg);*/
+	void set_betyg(const std::string& betyg);
 
 	std::string get_id() const;
 	std::string get_typ() const;

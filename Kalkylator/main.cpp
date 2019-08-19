@@ -1,11 +1,4 @@
 ﻿#include "precompile.h"
-#define _CRTDBG_MAP_ALLOC
-#include <stdlib.h>
-#include <crtdbg.h>
-#ifdef _DEBUG
-#define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
-#define new DEBUG_NEW
-#endif
 #include "title.h"
 #include "window.h"
 #include "curse.h"
@@ -544,12 +537,13 @@ int main() {
 	s.redraw_element();
 
 	auto position = s.get_header_positions();
+
 	list<5, kurs> aass(win, { engelska, historia }, {
-			column<kurs>(win, position[0], &kurs::get_id),
-			column<kurs>(win, position[1], &kurs::get_typ),
-			column<kurs>(win, position[2], &kurs::get_namn),
-			column<kurs>(win, position[3], &kurs::get_poäng),
-			column<kurs>(win, position[4], &kurs::get_betyg)
+			column<kurs>(win, position[0], &kurs::get_id, &kurs::set_id, string{}),
+			column<kurs>(win, position[1], &kurs::get_typ, &kurs::set_typ, string{}),
+			column<kurs>(win, position[2], &kurs::get_namn, &kurs::set_namn, string{}),
+			column<kurs>(win, position[3], &kurs::get_poäng, &kurs::set_poäng, integer{50}),
+			column<kurs>(win, position[4], &kurs::get_betyg, &kurs::set_betyg, character{ 'A', 'F' })
 		}, &s,
 		{ 1,4 });
 	
@@ -606,13 +600,16 @@ int main() {
 			hh.move_cursor(direction::left);
 			break;
 		case 9:
-			hh.swap_selection_typ();
+			hh.swap_selection_type();
 			break;
 		case '+':
 			hh.add_empty_entry();
 			break;
 		case '-':
 			hh.remove_entry();
+			break;
+		case KEY_HOME:
+			hh.edit_column();
 			break;
 		}
 
