@@ -41,7 +41,7 @@ void kurs::set_poäng(const std::string& poäng)
 
 void kurs::set_betyg(const std::string& betyg)
 {
-	betyg_ = std::stoi(betyg);
+	betyg_ = betyg[0];
 }
 
 std::string kurs::get_id() const

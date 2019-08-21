@@ -36,6 +36,8 @@ public:
 	void select() const;
 	void unselect() const;
 
+	void reselect();
+
 	void move_cursor(direction dir);
 
 protected:
@@ -141,6 +143,14 @@ inline void list_traverser<col, T>::unselect() const
 {
 	mvwchgat(win_.get_window(), selection_start_.y, selection_start_.x, selection_length_, A_NORMAL, 0, 0);
 	wrefresh(win_.get_window());
+}
+
+template<int col, typename T>
+inline void list_traverser<col, T>::reselect()
+{
+	unselect();
+	update_length();
+	select();
 }
 
 template<int col, typename T>

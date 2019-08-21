@@ -39,7 +39,7 @@ size line::get_element_size() const
 
 void line::draw_element()
 {
-	int (*line_func)(WINDOW*, int, int, chtype, int) = (rotation_ == orientation::vertical) ? mvwvline : mvwhline; ;
+	int (*line_func)(WINDOW*, int, int, chtype, int) = (rotation_ == orientation::vertical) ? mvwvline : mvwhline;
 	
 	line_func(window_.get_window(), position_.y, position_.x, 0, length_);
 }

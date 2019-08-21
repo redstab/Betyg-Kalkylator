@@ -1,7 +1,9 @@
-﻿#include "precompile.h"
+﻿
+#include "precompile.h"
 #include "title.h"
 #include "window.h"
 #include "curse.h"
+#include "program.h"
 #include "line.h"
 #include "header.h"
 #include "list.h"
@@ -520,6 +522,8 @@ int main() {
 	kurs engelska("ENGENG05", "GYGEM", "Engelska 5", 100, 'A');
 	kurs historia("HISHIS01a1", "GYGEM", "Historia 1a1", 50, 'B');
 
+	program aae({ engelska, historia });
+
 	window win({ 113,25 });
 
 	//win.hide_border();
@@ -529,7 +533,7 @@ int main() {
 		{
 			table_header(win, "Kurs", 10),
 			table_header(win, "Kurstyp", 7),
-			table_header(win, "Kursnamn", 8),
+			table_header(win, "Kursnamn", 30),
 			table_header(win, "Poäng", 3),
 			table_header(win, "Betyg", 1)
 		}, { 1,2 }, win.get_size().x-1, 3);
