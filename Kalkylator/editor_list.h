@@ -4,7 +4,7 @@
 
 template<int col, typename T> class editor_list : public list_traverser<col, T> {
 public:
-	editor_list(const window& win, list<col, T>* lst, selection_type type);
+	editor_list(const window& win, list<col, T>* lst, selection_type type, std::function<void()> on_update);
 
 	void add_empty_entry();
 
@@ -27,10 +27,12 @@ private:
 
 	void edit_column();
 
+	std::function<void()> on_update_;
+
 };
 
 template<int col, typename T>
-inline editor_list<col, T>::editor_list(const window& win, list<col, T>* lst, selection_type type) : list_traverser<col, T>(win, lst, type), window_(win) {}
+inline editor_list<col, T>::editor_list(const window& win, list<col, T>* lst, selection_type type, std::function<void()> on_update) : list_traverser<col, T>(win, lst, type), window_(win), on_update_{on_update} {}
 
 template<int col, typename T>
 inline void editor_list<col, T>::add_empty_entry()
