@@ -36,12 +36,19 @@ void kurs::set_namn(const std::string& namn)
 
 void kurs::set_poäng(const std::string& poäng)
 {
-	poäng_ = std::stoi(poäng);
+
+	if (std::all_of(poäng.begin(), poäng.end(), isdigit)) {
+		poäng_ = std::stoi(poäng);
+	}
+
 }
 
 void kurs::set_betyg(const std::string& betyg)
 {
-	betyg_ = betyg[0];
+	if (betyg[0] <= 'F' && betyg[0] >= 'A') {
+		betyg_ = betyg[0];
+	}
+
 }
 
 std::string kurs::get_id() const

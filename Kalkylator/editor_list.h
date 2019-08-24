@@ -15,13 +15,15 @@ public:
 
 	void remove_entry();
 
-	void edit_entry();
-
-	void edit_column();
+	void edit();
 
 private:
 	window window_;
 	std::string get_input(std::string begin, point position, int begin_pos, int length);
+
+	void edit_row();
+
+	void edit_column();
 
 };
 
@@ -56,6 +58,28 @@ inline void editor_list<col, T>::remove_entry()
 		this->select();
 
 	}
+}
+
+template<int col, typename T>
+inline void editor_list<col, T>::edit()
+{
+	if (this->type_ == selection_type::row_selection) {
+		edit_row();
+	}
+	else {
+		edit_column();
+	}
+}
+
+template<int col, typename T>
+inline void editor_list<col, T>::edit_row()
+{
+
+	for (auto i = 0; i < this->list_->get_column_positions().size(); ++i) {
+		edit_column();
+		this->move_cursor(direction::right);
+	}
+
 }
 
 template<int col, typename T>
@@ -105,47 +129,6 @@ inline void editor_list<col, T>::edit_column()
 	this->list_->redraw_element();
 
 	this->reselect();
-
-
-
-	//// clear column if default else edit 
-	//if (this->list_->get_elements().at(this->cursor_.y) == T()) {
-	//	
-
-	//	this->list_->redraw_element();
-	//	this->set_selection_type(selection_type::column_selection);
-
-	//	this->reselect();
-	//	
-	//	set_col_txt(get_input("", col_pos, 0, col_length));
-	//	
-	//	this->list_->redraw_element();
-
-	//	this->reselect();
-
-
-	//}
-
-	//else {
-
-	//	std::string padding = std::string((col_length - static_cast<int>(get_col_txt().length())), ' ');
-
-	//	int begin_txt_pos = get_col_txt().length();
-
-	//	set_col_txt(std::string(get_col_txt() + padding));
-	//	this->list_->redraw_element();
-	//	this->set_selection_type(selection_type::column_selection);
-	//	this->reselect();
-
-	//	set_col_txt(get_input(get_col_txt(), col_pos, begin_txt_pos, col_length));
-
-	//	this->list_->redraw_element();
-
-	//	this->reselect();
-
-	//}
-
-
 }
 
 template<int col, typename T>

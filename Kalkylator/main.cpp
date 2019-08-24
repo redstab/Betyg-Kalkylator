@@ -613,7 +613,7 @@ int main() {
 			hh.remove_entry();
 			break;
 		case KEY_HOME:
-			hh.edit_column();
+			hh.edit();
 			break;
 		}
 
