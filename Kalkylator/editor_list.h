@@ -6,10 +6,6 @@ template<int col, typename T> class editor_list : public list_traverser<col, T> 
 public:
 	editor_list(const window& win, list<col, T>* lst, selection_type type);
 
-	void enter_editing_mode();
-	void exit_editing_mode();
-	void swap_mode();
-
 	void add_empty_entry();
 
 	void remove_entry();
@@ -86,6 +82,8 @@ inline void editor_list<col, T>::edit_row()
 		this->move_cursor(direction::right);
 	}
 
+	this->set_selection_type(selection_type::row_selection);
+
 }
 
 template<int col, typename T>
@@ -118,6 +116,7 @@ inline void editor_list<col, T>::edit_column()
 	if (this->list_->get_elements().at(this->cursor_.y) == T()) {
 		set_col_txt(std::string(col_length, ' '));
 		col_text = "";
+		this->list_->redraw_element();
 	}
 	else {
 		this->selection_length_ = col_length;
@@ -125,14 +124,8 @@ inline void editor_list<col, T>::edit_column()
 		begin_cursor_pos = col_text.length();
 	}
 
-	// redraw and reselect
-
-	this->list_->redraw_element();
 	this->set_selection_type(selection_type::column_selection);
-
 	this->select();
-
-
 
 	set_col_txt(get_input(col_text, col_pos, begin_cursor_pos, col_length, type));
 
@@ -172,7 +165,7 @@ inline std::string editor_list<col, T>::get_string_input(std::string begin, poin
 
 		// if at max length and the user does not hit bs break, because it would overwrite or when user hits enter break
 
-		if ((count >= length and !(key == 127 or key == '\b' or key == KEY_BACKSPACE)) or key == 13) {
+		if ((count >= length-1 and !(key == 127 or key == '\b' or key == KEY_BACKSPACE)) or key == 13) {
 			end = true;
 		}
 
