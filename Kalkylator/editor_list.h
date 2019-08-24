@@ -2,7 +2,6 @@
 #include "precompile.h"
 #include "list_traverser.h"
 
-
 template<int col, typename T> class editor_list : public list_traverser<col, T> {
 public:
 	editor_list(const window& win, list<col, T>* lst, selection_type type);
@@ -19,7 +18,14 @@ public:
 
 private:
 	window window_;
-	std::string get_input(std::string begin, point position, int begin_pos, int length);
+
+	std::string get_input(std::string begin, point position, int begin_pos, int length, std::variant<string, integer, character> type);
+
+	std::string get_string_input(std::string begin, point position, int begin_pos, int length);
+
+	std::string get_int_input(std::string begin, point position, int begin_pos, int length, integer limit);
+
+	std::string get_char_input(std::string begin, point position, int begin_pos, int length, character limit);
 
 	void edit_row();
 
@@ -93,6 +99,8 @@ inline void editor_list<col, T>::edit_column()
 
 	point col_pos = row.columns.at(this->cursor_.x).position;
 
+	std::variant<string, integer, character> type = row.columns.at(this->cursor_.x).type;
+
 	std::string(T:: * str_get)() const = this->list_->get_function_pointer().at(this->cursor_.x).getter;
 
 	void (T:: * str_set)(const std::string&) = this->list_->get_function_pointer().at(this->cursor_.x).setter;
@@ -107,7 +115,7 @@ inline void editor_list<col, T>::edit_column()
 
 	int begin_cursor_pos = 0;
 
-	if (this->list_->get_elements().at(this->cursor_.y) == T()) { 
+	if (this->list_->get_elements().at(this->cursor_.y) == T()) {
 		set_col_txt(std::string(col_length, ' '));
 		col_text = "";
 	}
@@ -124,7 +132,9 @@ inline void editor_list<col, T>::edit_column()
 
 	this->select();
 
-	set_col_txt(get_input(col_text, col_pos, begin_cursor_pos, col_length));
+
+
+	set_col_txt(get_input(col_text, col_pos, begin_cursor_pos, col_length, type));
 
 	this->list_->redraw_element();
 
@@ -132,7 +142,21 @@ inline void editor_list<col, T>::edit_column()
 }
 
 template<int col, typename T>
-inline std::string editor_list<col, T>::get_input(std::string begin, point position, int begin_pos, int length)
+inline std::string editor_list<col, T>::get_input(std::string begin, point position, int begin_pos, int length, std::variant<string, integer, character> type)
+{
+	if (std::holds_alternative<string>(type)) {
+		return get_string_input(begin, position, begin_pos, length);
+	}
+	else if (std::holds_alternative<integer>(type)) {
+		return get_int_input(begin, position, begin_pos, length, std::get<integer>(type));
+	}
+	else {
+		return get_char_input(begin, position, begin_pos, length, std::get<character>(type));
+	}
+}
+
+template<int col, typename T>
+inline std::string editor_list<col, T>::get_string_input(std::string begin, point position, int begin_pos, int length)
 {
 
 	//highlight column
@@ -148,37 +172,116 @@ inline std::string editor_list<col, T>::get_input(std::string begin, point posit
 
 		// if at max length and the user does not hit bs break, because it would overwrite or when user hits enter break
 
-		if ((count >= length and !(key == 127 or key == '\b' or key == KEY_BACKSPACE)) or key == 13) { 
-			break;
+		if ((count >= length and !(key == 127 or key == '\b' or key == KEY_BACKSPACE)) or key == 13) {
+			end = true;
 		}
 
 		if (key >= 32 and key <= 126) { // if alnum() or special char
-			
+
 			output += key;
-			
-			mvwprintw(window_.get_window(), position.y, position.x+count, std::string(1, key).c_str());
-			
+
+			mvwprintw(window_.get_window(), position.y, position.x + count, std::string(1, key).c_str());
+
 			this->select();
 
 			++count;
 
 		}
 		else if (key == 127 or key == '\b' or key == KEY_BACKSPACE) { // if backspace
-			
-			if (count != 0) { 
-				
+
+			if (count != 0) {
+
 				mvwprintw(window_.get_window(), position.y, position.x + count - 1, " "); // remove last position
-				
+
 				output.erase(count - 1, 1); // erase from string
-				
-				count -= 1; // back by because of ++i in for loop
+
 				this->select();
+
+				count -= 1; // back by because of ++i in for loop
 			}
 		}
-/*		else {
-			count -= 1;
-		}*/
+		/*		else {
+					count -= 1;
+				}*/
 
 	}
 	return output;
+}
+
+template<int col, typename T>
+inline std::string editor_list<col, T>::get_int_input(std::string begin, point position, int begin_pos, int length, integer limit)
+{
+	int interval = limit.interval;
+
+	int current_int = 0;
+
+	if (std::all_of(begin.begin(), begin.end(), isdigit)) {
+		current_int = std::stoi(begin);
+	}
+
+	bool end = false;
+
+	while (!end) {
+
+		int key = getch();
+
+		if (key == 13) { // quit if user press enter
+			end = true;
+		}
+
+		if (key == KEY_LEFT && current_int >= interval) { // decrease int
+			current_int -= interval;
+		}
+
+		else if (key == KEY_RIGHT) { // increase int
+			if ((std::trunc(std::log10(current_int + interval)) + 1) <= length) {
+				current_int += interval;
+			}
+		}
+
+		// Update screen
+
+		mvwprintw(window_.get_window(), position.y, position.x, std::string(length, ' ').c_str());
+		mvwprintw(window_.get_window(), position.y, position.x, "%d", current_int);
+		
+		this->select();
+	}
+
+	return std::to_string(current_int);
+
+}
+
+template<int col, typename T>
+inline std::string editor_list<col, T>::get_char_input(std::string begin, point position, int begin_pos, int length, character limit)
+{
+
+	char output = begin[0];
+
+	bool end = false;
+
+	while (!end) {
+
+		int key = getch();
+
+		if (key == 13) { // quit if user press enter
+			end = true;
+		}
+
+		if (key == KEY_LEFT && output < limit.to) { // decrease int
+			output += 1;
+		}
+
+		else if (key == KEY_RIGHT && output > limit.from) { // increase int
+			output -= 1;
+		}
+
+		// Update screen
+
+		mvwprintw(window_.get_window(), position.y, position.x, std::string(length, ' ').c_str());
+		mvwprintw(window_.get_window(), position.y, position.x, std::string(1,output).c_str());
+
+		this->select();
+
+	}
+	return std::string(1, output);
 }

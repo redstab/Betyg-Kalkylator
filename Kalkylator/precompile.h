@@ -3,6 +3,7 @@
 #include <curses.h>
 #include <vector>
 #include <numeric>
+#include <cmath>
 #include <string>
 #include <functional>
 #include <optional>
