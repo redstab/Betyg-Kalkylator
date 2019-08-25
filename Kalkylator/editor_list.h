@@ -78,6 +78,11 @@ inline void editor_list<col, T>::edit()
 template<int col, typename T>
 inline void editor_list<col, T>::edit_row()
 {
+	this->unselect();
+	
+	this->set_cursor_column(0);
+
+	this->set_selection_type(selection_type::column_selection);
 
 	for (auto i = 0; i < this->list_->get_column_positions().size(); ++i) {
 		edit_column();

@@ -17,7 +17,6 @@ int main() {
 	kurs engelska("ENGENG05", "GYGEM", "Engelska 5", 100, 'A');
 	kurs historia("HISHIS01a1", "GYGEM", "Historia 1a1", 50, 'B');
 
-
 	window win({ 113,25 });
 
 	header<5> s(win,
@@ -43,19 +42,23 @@ int main() {
 
 	line b(win, { 5, 3 }, win.get_size().x - 10, orientation::horizontal);
 
-
 	program aae(aass.get_elements());
 	
 	editor_list<5, kurs> hh(win, &aass, selection_type::column_selection, [&]() {aae.set_kurser(aass.get_elements()); });
 
 	title a(win, " Window Title ", 1);
 	
-	std::vector<ui_element*> elements{ &s, &b, &aass, &a };
+	line seperation(win, { 5, win.get_size().y - 3 }, win.get_size().x - 10, orientation::horizontal);
+	
+	line hsep1(win, { (win.get_size().x / 3), win.get_size().y - 2 }, 1, orientation::vertical);
+	
+	line hsep2(win, { (win.get_size().x / 3) * 2, win.get_size().y - 2 }, 1, orientation::vertical);
+
+	std::vector<ui_element*> elements{ &s, &b, &aass, &a, &seperation, &hsep1, &hsep2 };
 
 	for (auto& element : elements) {
 		element->draw_element();
 	}
-
 	
 	win.show_border();
 	hh.select();
