@@ -43,7 +43,10 @@ int main() {
 
 	line b(win, { 5, 3 }, win.get_size().x - 10, orientation::horizontal);
 
-	editor_list<5, kurs> hh(win, &aass, selection_type::column_selection);
+
+	program aae(aass.get_elements());
+	
+	editor_list<5, kurs> hh(win, &aass, selection_type::column_selection, [&]() {aae.set_kurser(aass.get_elements()); });
 
 	title a(win, " Window Title ", 1);
 	
@@ -53,7 +56,6 @@ int main() {
 		element->draw_element();
 	}
 
-	program aae(aass.get_elements());
 	
 	win.show_border();
 	hh.select();

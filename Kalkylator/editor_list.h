@@ -199,6 +199,8 @@ inline std::string editor_list<col, T>::get_string_input(std::string begin, poin
 					count -= 1;
 				}*/
 
+		on_update_();
+
 	}
 	return output;
 }
@@ -240,6 +242,10 @@ inline std::string editor_list<col, T>::get_int_input(std::string begin, point p
 		mvwprintw(window_.get_window(), position.y, position.x, "%d", current_int);
 		
 		this->select();
+
+		(this->list_->get_rows().at(this->cursor_.y).object.*this->list_->get_function_pointer().at(this->cursor_.x).setter)(std::to_string(current_int));
+
+		on_update_();
 	}
 
 	return std::to_string(current_int);
@@ -276,6 +282,11 @@ inline std::string editor_list<col, T>::get_char_input(std::string begin, point 
 		mvwprintw(window_.get_window(), position.y, position.x, std::string(1,output).c_str());
 
 		this->select();
+
+		(this->list_->get_rows().at(this->cursor_.y).object.*this->list_->get_function_pointer().at(this->cursor_.x).setter)(std::string(1, output));
+
+		on_update_();
+
 
 	}
 	return std::string(1, output);
