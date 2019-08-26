@@ -13,9 +13,9 @@ void program::set_merit(double merit)
 	merit_ = merit;
 }
 
-double program::get_merit() const
+double* program::get_merit()
 {
-	return merit_;
+	return &merit_;
 }
 
 std::vector<kurs>* program::get_kurser()
@@ -23,18 +23,25 @@ std::vector<kurs>* program::get_kurser()
 	return &kurser_;
 }
 
-double program::get_snitt() const
+double* program::get_snitt()
+{
+
+	return &snitt_;
+	
+}
+
+double* program::get_sum()
+{
+	return &sum_;
+}
+
+void program::calculate()
 {
 	double summa = std::accumulate(kurser_.begin(), kurser_.end(), 0.0, summa_);
 	double poäng = std::accumulate(kurser_.begin(), kurser_.end(), 0.0, poäng_);
 
-	return (summa / poäng) + merit_;
-	
-}
-
-double program::get_sum() const
-{
-	return std::accumulate(kurser_.begin(), kurser_.end(), 0.0, poäng_);
+	snitt_ = (summa / poäng) + merit_;
+	sum_ = poäng;
 }
 
 program& program::operator+=(const kurs& krs)

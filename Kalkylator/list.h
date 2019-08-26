@@ -22,7 +22,6 @@ template<typename T> struct column {
 
 template<int n, typename T> struct row {
 	row(std::array<column<T>, n> cols, T obj) : columns{ cols }, object{ obj }{}
-
 	std::array<column<T>, n> columns;
 	T object;
 };
@@ -30,7 +29,7 @@ template<int n, typename T> struct row {
 template<int number_of_columns, typename T>
 class list : public ui_element {
 public:
-	list(const window& win, std::vector<T> items, std::array<column<T>, number_of_columns> columns, header<number_of_columns>* head, point position);
+	list(const window& win, std::vector<T> items, std::array<column<T>, number_of_columns> columns, header<number_of_columns>* head, point position, int max_rows);
 
 	void set_length(int length);
 
@@ -60,22 +59,25 @@ public:
 
 private:
 
-	std::vector<row<number_of_columns, T>> rows;
+	std::vector<row<number_of_columns, T>> rows_;
 
-	std::array<column<T>, number_of_columns> boilerplate_row;
+	std::array<column<T>, number_of_columns> boilerplate_row_;
 
-	header<number_of_columns>* headers;
+	header<number_of_columns>* headers_;
 
-	int list_length;
+	int list_length_;
+
+	int max_rows_;
 
 };
 
 template<int number_of_columns, typename T>
-inline list<number_of_columns, T>::list(const window& win, std::vector<T> items, std::array<column<T>, number_of_columns> columns, header<number_of_columns>* head, point position) :
+inline list<number_of_columns, T>::list(const window& win, std::vector<T> items, std::array<column<T>, number_of_columns> columns, header<number_of_columns>* head, point position, int max_rows) :
 	ui_element(win, position),
-	boilerplate_row{ columns },
-	headers{ head },
-	list_length{ head->get_element_size().x }
+	boilerplate_row_{ columns },
+	headers_{ head },
+	list_length_{ head->get_element_size().x },
+	max_rows_{max_rows}
 {
 	for (auto i : items) {
 		push_item(i);
@@ -85,13 +87,13 @@ inline list<number_of_columns, T>::list(const window& win, std::vector<T> items,
 template<int number_of_columns, typename T>
 inline void list<number_of_columns, T>::set_length(int length)
 {
-	list_length = length;
+	list_length_ = length;
 }
 
 template<int number_of_columns, typename T>
 inline int list<number_of_columns, T>::get_length() const
 {
-	return list_length;
+	return list_length_;
 }
 
 template<int number_of_columns, typename T>
@@ -99,9 +101,9 @@ inline std::vector<T> list<number_of_columns, T>::get_elements() const
 {
 	std::vector<T> object_list;
 
-	object_list.resize(rows.size());
+	object_list.resize(rows_.size());
 
-	std::generate(object_list.begin(), object_list.end(), [n = 0, this]() mutable {return rows[n++].object; });
+	std::generate(object_list.begin(), object_list.end(), [n = 0, this]() mutable {return rows_[n++].object; });
 
 	return object_list;
 }
@@ -111,7 +113,7 @@ inline std::array<point, number_of_columns> list<number_of_columns, T>::get_colu
 {
 	std::array<point, number_of_columns> positions;
 	
-	auto columns = headers->get_header_positions();
+	auto columns = headers_->get_header_positions();
 
 	std::generate(positions.begin(), positions.end(), [n = 0, this, columns]() mutable {return point{ columns[n++].x, position_.y }; });
 
@@ -123,7 +125,7 @@ inline std::array<int, number_of_columns> list<number_of_columns, T>::get_column
 {
 	std::array<int, number_of_columns> col_length;
 
-	auto head = headers->get_headers();
+	auto head = headers_->get_headers();
 
 	std::generate(col_length.begin(), col_length.end(), [n = 0, head]() mutable {return head[n++].get_element_size().x; });
 
@@ -133,7 +135,7 @@ inline std::array<int, number_of_columns> list<number_of_columns, T>::get_column
 template<int number_of_columns, typename T>
 inline std::array<column<T>, number_of_columns> list<number_of_columns, T>::get_function_pointer() const
 {
-	return boilerplate_row;
+	return boilerplate_row_;
 }
 
 template<int number_of_columns, typename T>
@@ -141,7 +143,7 @@ inline std::array<int, number_of_columns> list<number_of_columns, T>::get_data_l
 {
 	std::array<int, number_of_columns> col_length;
 
-	auto head = headers->get_headers();
+	auto head = headers_->get_headers();
 
 	std::generate(col_length.begin(), col_length.end(), [n = 0, head]() mutable {return head[n++].get_data_length(); });
 
@@ -151,60 +153,66 @@ inline std::array<int, number_of_columns> list<number_of_columns, T>::get_data_l
 template<int number_of_columns, typename T>
 inline std::vector<row<number_of_columns, T>>& list<number_of_columns, T>::get_rows()
 {
-	return rows;
+	return rows_;
 }
 
 template<int number_of_columns, typename T>
 inline int list<number_of_columns, T>::get_max_rows() const
 {
-	return get_element_size().y;
+	return max_rows_;
 }
 
 template<int number_of_columns, typename T>
 inline void list<number_of_columns, T>::push_item(const T& item)
 {
+	//if (rows_.size() == max_rows_) {
+	//	printw("");
+	//}
+	//else {
+	//	1 + 1;
+	//}
 	std::array<column<T>, number_of_columns> cols
 	{
-		column<T>(window_, {0,0}, nullptr, nullptr, boilerplate_row.at(0).type),
-		column<T>(window_, {0,0}, nullptr, nullptr, boilerplate_row.at(1).type),
-		column<T>(window_, {0,0}, nullptr, nullptr, boilerplate_row.at(2).type),
-		column<T>(window_, {0,0}, nullptr, nullptr, boilerplate_row.at(3).type),
-		column<T>(window_, {0,0}, nullptr, nullptr, boilerplate_row.at(4).type)
+		column<T>(window_, {0,0}, nullptr, nullptr, boilerplate_row_.at(0).type),
+		column<T>(window_, {0,0}, nullptr, nullptr, boilerplate_row_.at(1).type),
+		column<T>(window_, {0,0}, nullptr, nullptr, boilerplate_row_.at(2).type),
+		column<T>(window_, {0,0}, nullptr, nullptr, boilerplate_row_.at(3).type),
+		column<T>(window_, {0,0}, nullptr, nullptr, boilerplate_row_.at(4).type)
 	};
 
-	auto columns = headers->get_header_positions();
+	auto columns = headers_->get_header_positions();
 
 	for (auto i = 0; i < static_cast<int>(cols.size()); ++i) {
 
-		column<T> col(window_, { columns.at(i).x, static_cast<int>(rows.size()) + position_.y }, boilerplate_row.at(i).getter, boilerplate_row.at(i).setter, boilerplate_row.at(i).type);
+		column<T> col(window_, { columns.at(i).x, static_cast<int>(rows_.size()) + position_.y }, boilerplate_row_.at(i).getter, boilerplate_row_.at(i).setter, boilerplate_row_.at(i).type);
 		col.txt.set_text((item.*col.getter)());
 		col.txt.set_window(window_);
 		cols.at(i) = col;
 
 	}
 
-	rows.push_back(row<number_of_columns, T>(cols, item));
+	rows_.push_back(row<number_of_columns, T>(cols, item));
 }
 
 template<int number_of_columns, typename T>
 inline void list<number_of_columns, T>::pop_item(const T& item)
 {
-	auto result = std::find_if(rows.begin(), rows.end(), [&](row<number_of_columns, T> rw) {return rw.object == item; });
+	auto result = std::find_if(rows_.begin(), rows_.end(), [&](row<number_of_columns, T> rw) {return rw.object == item; });
 
-	if (result != rows.end()) {
-		int i = std::distance(rows.begin(), result);
+	if (result != rows_.end()) {
+		int i = std::distance(rows_.begin(), result);
 
-		if (i+1 == static_cast<int>(rows.size())) {
-			auto& col = rows.at(i).columns;
+		if (i+1 == static_cast<int>(rows_.size())) {
+			auto& col = rows_.at(i).columns;
 			for (auto c = 0; c < number_of_columns; ++c) {
 				col[c].txt.clear_element();
 			}
 		}
 
-		rows.erase(result);
+		rows_.erase(result);
 
-		for (; i < static_cast<int>(rows.size()); ++i) {
-			auto& col = rows.at(i).columns;
+		for (; i < static_cast<int>(rows_.size()); ++i) {
+			auto& col = rows_.at(i).columns;
 			for (auto j = 0; j < number_of_columns; ++j) {
 				col[j].txt.clear_element();
 				col[j].txt.set_position({ col[j].position.x, --col[j].position.y });
@@ -218,13 +226,13 @@ inline void list<number_of_columns, T>::pop_item(const T& item)
 template<int number_of_columns, typename T>
 inline size list<number_of_columns, T>::get_element_size() const
 {
-	return { list_length, static_cast<int>(rows.size()) };
+	return { list_length_, max_rows_ };
 }
 
 template<int number_of_columns, typename T>
 inline void list<number_of_columns, T>::draw_element()
 {
-	for (auto _row : rows) {
+	for (auto _row : rows_) {
 		for (auto col : _row.columns) {
 			col.txt.set_text((_row.object.*col.getter)());
 			col.txt.draw_element();

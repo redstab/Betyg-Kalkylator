@@ -110,7 +110,7 @@ inline void editor_list<col, T>::edit_column()
 
 	void (T:: * str_set)(const std::string&) = this->list_->get_function_pointer().at(this->cursor_.x).setter;
 
-	auto set_col_txt = [&](const std::string& str) {(row.object.*str_set)(str); };
+	auto set_col_txt = [&, this](const std::string& str) {(row.object.*str_set)(str); row.columns.at(this->cursor_.x).txt.set_text(str); };
 	auto get_col_txt = [&]() {return (row.object.*str_get)(); };
 
 
@@ -120,13 +120,15 @@ inline void editor_list<col, T>::edit_column()
 
 	int begin_cursor_pos = 0;
 
+	this->selection_length_ = col_length;
+
 	if (this->list_->get_elements().at(this->cursor_.y) == T()) {
 		set_col_txt(std::string(col_length, ' '));
 		col_text = "";
-		this->list_->redraw_element();
+		//this->list_->redraw_element();
 	}
 	else {
-		this->selection_length_ = col_length;
+		
 		col_text = get_col_txt();
 		begin_cursor_pos = col_text.length();
 	}
@@ -217,7 +219,7 @@ inline std::string editor_list<col, T>::get_int_input(std::string begin, point p
 
 	int current_int = 0;
 
-	if (std::all_of(begin.begin(), begin.end(), isdigit)) {
+	if (std::all_of(begin.begin(), begin.end(), isdigit) && begin != "") {
 		current_int = std::stoi(begin);
 	}
 

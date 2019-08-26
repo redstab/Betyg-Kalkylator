@@ -5,7 +5,7 @@ class integer_text :
 	public text
 {
 public:
-	integer_text(const window& win, const std::string& text, double value, point position);
+	integer_text(const window& win, const std::string& text, double* value, point position);
 
 	void set_value(double value);
 	double get_value() const;
@@ -14,6 +14,6 @@ public:
 	void draw_element();
 
 private:
-	double value_;
+	double* value_;
 };
 

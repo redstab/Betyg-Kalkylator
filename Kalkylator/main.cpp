@@ -5,6 +5,7 @@
 #include "curse.h"
 #include "program.h"
 #include "line.h"
+#include "integer_text.h"
 #include "header.h"
 #include "list.h"
 #include "kurs.h"
@@ -12,12 +13,14 @@
 
 int main() {
 
+	const int padding = 5;
+
 	curse c;
 
 	kurs engelska("ENGENG05", "GYGEM", "Engelska 5", 100, 'A');
 	kurs historia("HISHIS01a1", "GYGEM", "Historia 1a1", 50, 'B');
 
-	window win({ 113,25 });
+	window win({ 120-padding*2,30-padding });
 
 	header<5> s(win,
 		{
@@ -38,28 +41,36 @@ int main() {
 			column<kurs>(win, position[3], &kurs::get_poäng, &kurs::set_poäng, integer{50}),
 			column<kurs>(win, position[4], &kurs::get_betyg, &kurs::set_betyg, character{ 'A', 'F' })
 		}, &s,
-		{ 1,4 });
-
-	line b(win, { 5, 3 }, win.get_size().x - 10, orientation::horizontal);
+		{ 1, padding - 1 }, win.get_size().y - 4 - 3);
 
 	program aae(aass.get_elements());
 	
-	editor_list<5, kurs> hh(win, &aass, selection_type::column_selection, [&]() {aae.set_kurser(aass.get_elements()); });
-
 	title a(win, " Window Title ", 1);
 	
-	line seperation(win, { 5, win.get_size().y - 3 }, win.get_size().x - 10, orientation::horizontal);
+	line b(win, { padding, 3 }, win.get_size().x - padding*2, orientation::horizontal);
+	
+	line seperation(win, { padding, win.get_size().y - 3 }, win.get_size().x - padding*2, orientation::horizontal);
 	
 	line hsep1(win, { (win.get_size().x / 3), win.get_size().y - 2 }, 1, orientation::vertical);
 	
 	line hsep2(win, { (win.get_size().x / 3) * 2, win.get_size().y - 2 }, 1, orientation::vertical);
 
-	std::vector<ui_element*> elements{ &s, &b, &aass, &a, &seperation, &hsep1, &hsep2 };
+	integer_text merit(win, "Merit", aae.get_merit(), { 0,0 });
+	integer_text snitt(win, "Summa", aae.get_sum(), { 0,0 });
+	integer_text summa(win, "Snitt", aae.get_snitt(), { 0,0 });
 
+	editor_list<5, kurs> hh(win, &aass, selection_type::column_selection, [&]() {aae.set_kurser(aass.get_elements()); aae.calculate(); merit.redraw_element(); summa.redraw_element(); snitt.redraw_element(); wrefresh(win.get_window()); });
+
+	merit.set_position({ ((win.get_size().x / 3) - merit.get_element_size().x + padding)/2, win.get_size().y - 2 });
+	summa.set_position({ (win.get_size().x - summa.get_element_size().x) / 2, win.get_size().y - 2 });
+	snitt.set_position({ (win.get_size().x / 3) * 2 + ((win.get_size().x / 3) - snitt.get_element_size().x )/2, win.get_size().y - 2 });
+
+	std::vector<ui_element*> elements{ &s, &b, &aass, &a, &seperation, &hsep1, &hsep2, &merit, &summa, &snitt};
+	aae.calculate();
 	for (auto& element : elements) {
 		element->draw_element();
 	}
-	
+
 	win.show_border();
 	hh.select();
 	
