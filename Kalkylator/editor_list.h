@@ -12,6 +12,8 @@ public:
 
 	void edit();
 
+	void execute_update();
+
 private:
 	window window_;
 
@@ -73,6 +75,12 @@ inline void editor_list<col, T>::edit()
 	else {
 		edit_column();
 	}
+}
+
+template<int col, typename T>
+inline void editor_list<col, T>::execute_update()
+{
+	on_update_();
 }
 
 template<int col, typename T>

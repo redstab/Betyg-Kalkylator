@@ -20,7 +20,7 @@ int main() {
 	kurs engelska("ENGENG05", "GYGEM", "Engelska 5", 100, 'A');
 	kurs historia("HISHIS01a1", "GYGEM", "Historia 1a1", 50, 'B');
 
-	window win({ 120-padding*2,30-padding });
+	window win({ 120 - padding * 2,30 - padding });
 
 	header<5> s(win,
 		{
@@ -29,7 +29,7 @@ int main() {
 			table_header(win, "Kursnamn", 30),
 			table_header(win, "Poäng", 3),
 			table_header(win, "Betyg", 1)
-		}, { 1,2 }, win.get_size().x-1, 3);
+		}, { 1,2 }, win.get_size().x - 1, 3);
 
 
 	auto position = s.get_header_positions();
@@ -44,15 +44,15 @@ int main() {
 		{ 1, padding - 1 }, win.get_size().y - 4 - 3);
 
 	program aae(aass.get_elements());
-	
+
 	title a(win, " Window Title ", 1);
-	
-	line b(win, { padding, 3 }, win.get_size().x - padding*2, orientation::horizontal);
-	
-	line seperation(win, { padding, win.get_size().y - 3 }, win.get_size().x - padding*2, orientation::horizontal);
-	
+
+	line b(win, { padding, 3 }, win.get_size().x - padding * 2, orientation::horizontal);
+
+	line seperation(win, { padding, win.get_size().y - 3 }, win.get_size().x - padding * 2, orientation::horizontal);
+
 	line hsep1(win, { (win.get_size().x / 3), win.get_size().y - 2 }, 1, orientation::vertical);
-	
+
 	line hsep2(win, { (win.get_size().x / 3) * 2, win.get_size().y - 2 }, 1, orientation::vertical);
 
 	integer_text merit(win, "Merit", aae.get_merit(), { 0,0 });
@@ -61,19 +61,21 @@ int main() {
 
 	editor_list<5, kurs> hh(win, &aass, selection_type::column_selection, [&]() {aae.set_kurser(aass.get_elements()); aae.calculate(); merit.redraw_element(); summa.redraw_element(); snitt.redraw_element(); wrefresh(win.get_window()); });
 
-	merit.set_position({ ((win.get_size().x / 3) - merit.get_element_size().x + padding)/2, win.get_size().y - 2 });
+	merit.set_position({ ((win.get_size().x / 3) - merit.get_element_size().x + padding) / 2, win.get_size().y - 2 });
 	summa.set_position({ (win.get_size().x - summa.get_element_size().x) / 2, win.get_size().y - 2 });
-	snitt.set_position({ (win.get_size().x / 3) * 2 + ((win.get_size().x / 3) - snitt.get_element_size().x )/2, win.get_size().y - 2 });
+	snitt.set_position({ (win.get_size().x / 3) * 2 + ((win.get_size().x / 3) - snitt.get_element_size().x) / 2, win.get_size().y - 2 });
 
-	std::vector<ui_element*> elements{ &s, &b, &aass, &a, &seperation, &hsep1, &hsep2, &merit, &summa, &snitt};
+	std::vector<ui_element*> elements{ &s, &b, &aass, &a, &seperation, &hsep1, &hsep2, &merit, &summa, &snitt };
+
 	aae.calculate();
+
 	for (auto& element : elements) {
 		element->draw_element();
 	}
 
 	win.show_border();
 	hh.select();
-	
+
 	wrefresh(win.get_window());
 
 	int key{ 0 };
@@ -104,7 +106,27 @@ int main() {
 		case KEY_HOME:
 			hh.edit();
 			break;
+		case KEY_END:
+		{
+			bool end = false;
+			while (!end) {
+				int key = getch();
+				if (key == 13) {
+					end = true;
+				}
+				else if (key == KEY_RIGHT) {
+					aae.increase_merit();
+				}
+				else if (key == KEY_LEFT) {
+					aae.decrease_merit();
+				}
+				hh.execute_update();
+
+			}
 		}
+
+		}
+
 
 		wrefresh(win.get_window());
 

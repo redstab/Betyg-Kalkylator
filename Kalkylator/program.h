@@ -9,6 +9,9 @@ public:
 	void set_kurser(const std::vector<kurs>& kurser);
 	void set_merit(double merit);
 
+	void increase_merit();
+	void decrease_merit();
+
 	double* get_merit();
 	std::vector<kurs>* get_kurser();
 

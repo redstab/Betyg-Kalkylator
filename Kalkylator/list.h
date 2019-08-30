@@ -159,7 +159,7 @@ inline std::vector<row<number_of_columns, T>>& list<number_of_columns, T>::get_r
 template<int number_of_columns, typename T>
 inline int list<number_of_columns, T>::get_max_rows() const
 {
-	return max_rows_;
+	return rows_.size();
 }
 
 template<int number_of_columns, typename T>

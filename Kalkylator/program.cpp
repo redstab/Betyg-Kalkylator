@@ -13,6 +13,26 @@ void program::set_merit(double merit)
 	merit_ = merit;
 }
 
+void program::increase_merit()
+{
+	if (merit_ < 2.5) {
+		merit_ += 0.5;
+	}
+	else if(merit_ == 2.5) {
+		merit_ = 0;
+	}
+}
+
+void program::decrease_merit()
+{
+	if (merit_ > 0) {
+		merit_ -= 0.5;
+	}
+	else if(merit_ == 0){
+		merit_ = 2.5;
+	}
+}
+
 double* program::get_merit()
 {
 	return &merit_;
